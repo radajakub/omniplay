@@ -1,0 +1,7 @@
+[project]
+name = "omniplay"
+version = "0.1.0"
+description = "OmniPlay is a benchmark suite for evaluating the performance of LLMs and LLM Agents in simple game environments."
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = []
