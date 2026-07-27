@@ -1,5 +1,5 @@
-"""Phase 2 core tests: player-config registry, per-player tracker registry, and GameTracker
-round-trip. Uses lightweight stubs (no concrete game/player, which arrive in Phases 3-4)."""
+"""Phase 2 core tests: player-config parsing via the registry, the per-player tracker registry,
+and GameTracker round-trip. Uses an instance-scoped Registry (no globals)."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,10 +8,11 @@ import pytest
 
 from omniplay.common.enums import GameResults
 from omniplay.configs.player_config import PlayerConfig
-from omniplay.configs.player_params import PlayerParams, register_player_params
+from omniplay.configs.player_params import PlayerParams
 from omniplay.player.player import PlayerOutput
+from omniplay.registry import Registry
 from omniplay.trackers.game_tracker import GameTracker
-from omniplay.trackers.player_tracker import PlayerTracker, register_player_tracker
+from omniplay.trackers.player_tracker import PlayerTracker
 
 
 # --- stubs -----------------------------------------------------------------------------------
@@ -53,19 +54,20 @@ class _StubObservation:
         return 'OBS'
 
 
-register_player_params('stub', _StubParams)
-register_player_params('ai', _StubParams)
-register_player_tracker('ai', _LLMTracker())
+registry = Registry()
+registry.register_player_params('stub', _StubParams)
+registry.register_player_params('ai', _StubParams)
+registry.register_player_tracker('ai', _LLMTracker())
 
 
 # --- tests -----------------------------------------------------------------------------------
 def test_player_config_string_round_trip():
     cfg = PlayerConfig('stub', _StubParams('a'))
     assert cfg.to_string() == 'stub:a'
-    assert PlayerConfig.from_string('stub:a') == cfg
+    assert registry.player_config('stub:a') == cfg
     assert cfg.path == 'stub_a'
     # hash is a stable 12-char hex digest of the serialization, distinct per config
-    assert cfg.hash == PlayerConfig.from_string('stub:a').hash
+    assert cfg.hash == PlayerConfig('stub', _StubParams('a')).hash
     assert len(cfg.hash) == 12 and all(c in '0123456789abcdef' for c in cfg.hash)
     assert cfg.hash != PlayerConfig('stub', _StubParams('b')).hash
 
@@ -77,7 +79,7 @@ def test_llm_tracker_records_tokens_and_data():
 
     llm_out = PlayerOutput(action=_StubLLMAction('<a1>'), input_tokens=11, output_tokens=22,
                            reasoning_tokens=7, reasoning_trace='because')
-    tracker.add_move(i, _StubObservation(), llm_out, 'STATE')
+    tracker.add_move(i, _StubObservation(), llm_out, 'STATE', registry)
 
     step = tracker.steps[-1]
     assert (step.input_tokens, step.output_tokens, step.reasoning_tokens) == (11, 22, 7)
@@ -90,27 +92,24 @@ def test_tokens_recorded_generically_but_noop_tracker_adds_no_data():
     tracker = GameTracker(1, PlayerConfig('ai', _StubParams('i')), o, {})
 
     out = PlayerOutput(action=_StubLLMAction('<b2>'), input_tokens=5, output_tokens=9, reasoning_tokens=3)
-    tracker.add_move(o, _StubObservation(), out, 'STATE')
+    tracker.add_move(o, _StubObservation(), out, 'STATE', registry)
 
     step = tracker.steps[-1]
-    # tokens are recorded generically from PlayerOutput regardless of the tracker
     assert (step.input_tokens, step.output_tokens, step.reasoning_tokens) == (5, 9, 3)
-    # the no-op tracker contributes no player-specific data
     assert step.data is None
 
 
 def test_simple_bot_step_is_minimal():
     o = PlayerConfig('stub', _StubParams('o'))
     tracker = GameTracker(1, PlayerConfig('ai', _StubParams('i')), o, {})
-    tracker.add_move(o, _StubObservation(), PlayerOutput(action=_StubLLMAction('<b2>')), 'STATE')
-    # zero tokens and empty data are omitted from JSON
+    tracker.add_move(o, _StubObservation(), PlayerOutput(action=_StubLLMAction('<b2>')), 'STATE', registry)
     assert set(tracker.steps[-1].to_dict()) == {'seq', 'player_name', 'player_hash', 'serialized_state', 'observation', 'move'}
 
 
 def test_fail_move_records_failure_reason():
     i = PlayerConfig('ai', _StubParams('i'))
     tracker = GameTracker(1, i, PlayerConfig('stub', _StubParams('o')), {})
-    tracker.add_move(i, _StubObservation(), PlayerOutput(action=None, failure_reason='illegal'), 'STATE')
+    tracker.add_move(i, _StubObservation(), PlayerOutput(action=None, failure_reason='illegal'), 'STATE', registry)
     assert tracker.steps[-1].move == 'FAIL: illegal'
 
 
@@ -119,22 +118,21 @@ def test_game_tracker_round_trip():
     o = PlayerConfig('stub', _StubParams('o'))
     tracker = GameTracker(3, i, o, {'seed': 1}, other_params={'k': 'v'})
 
-    tracker.add_move(i, _StubObservation(), PlayerOutput(action=_StubLLMAction('<a>'), input_tokens=4, output_tokens=6), 'S1')
-    tracker.add_move(o, _StubObservation(), PlayerOutput(action=_StubLLMAction('<b>')), 'S2')
+    tracker.add_move(i, _StubObservation(), PlayerOutput(action=_StubLLMAction('<a>'), input_tokens=4, output_tokens=6), 'S1', registry)
+    tracker.add_move(o, _StubObservation(), PlayerOutput(action=_StubLLMAction('<b>')), 'S2', registry)
     tracker.end_game(GameResults.WIN, _StubObservation())
 
     data = tracker.to_dict()
-    restored = GameTracker.from_dict(data)
+    restored = GameTracker.from_dict(data, registry)
 
     assert restored.to_dict() == data
     assert restored.i_player == i and restored.o_player == o
     assert restored.get_result(i) == GameResults.WIN
     assert restored.get_result(o) == GameResults.LOSS
-    # tokens round-trip: the LLM move keeps its counts, the token-less move stays None
     assert (restored.steps[0].input_tokens, restored.steps[0].output_tokens) == (4, 6)
     assert restored.steps[1].input_tokens is None and restored.steps[1].output_tokens is None
 
 
-def test_from_dict_requires_registered_key():
+def test_player_config_requires_registered_key():
     with pytest.raises(ValueError):
-        PlayerConfig.from_string('unregistered:foo')
+        registry.player_config('unregistered:foo')

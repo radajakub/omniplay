@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Protocol
 
 from omniplay.player.player import PlayerOutput
 
@@ -22,15 +22,8 @@ class NoOpTracker(PlayerTracker):
         return {}
 
 
-# plugin registry: player key -> the tracker that decides what extras to persist for that player type.
-# Unregistered keys (e.g. simple bots) fall back to the no-op tracker.
-_TRACKER_REGISTRY: dict[str, PlayerTracker] = {}
-_NOOP = NoOpTracker()
+class PlayerTrackerResolver(Protocol):
+    """What the engine/tracker needs to look up a player's tracker by key. The Registry satisfies
+    this structurally, so the engine/game-tracker depend on this narrow interface, not on Registry."""
 
-
-def register_player_tracker(key: str, tracker: PlayerTracker) -> None:
-    _TRACKER_REGISTRY[key] = tracker
-
-
-def resolve_player_tracker(key: str) -> PlayerTracker:
-    return _TRACKER_REGISTRY.get(key, _NOOP)
+    def player_tracker(self, key: str) -> PlayerTracker: ...

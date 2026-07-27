@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from omniplay.callbacks.game_callbacks import GameCallbacks
 from omniplay.common.enums import GameResults
 from omniplay.configs.player_config import PlayerConfig
-from omniplay.configs.player_params import PlayerParams, register_player_params
+from omniplay.configs.player_params import PlayerParams
 
 
 @dataclass(frozen=True)
@@ -24,8 +24,6 @@ class _P(PlayerParams):
     def path(self) -> str:
         return self.label
 
-
-register_player_params('p', _P)
 
 CFG_A = PlayerConfig('p', _P('a'))
 CFG_B = PlayerConfig('p', _P('b'))

@@ -5,8 +5,6 @@ from typing import Any
 
 import pyspiel as sp
 
-from omniplay.common.enums import Games
-
 
 class OpenSpielAction:
     def __init__(self, number: int, string: str) -> None:
@@ -35,7 +33,8 @@ class OpenSpielObservation:
 
 
 class OpenSpielGame(ABC):
-    def __init__(self, game_type: Games, game_name: str, params: dict[str, Any] | None = None) -> None:
+    def __init__(self, game_type: str, game_name: str, params: dict[str, Any] | None = None) -> None:
+        # game_type is the registry key of the game variant (e.g. 'tic_tac_toe')
         self.game_type = game_type
         self.game_name = game_name
         self.params = params if params is not None else {}

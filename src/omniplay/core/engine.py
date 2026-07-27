@@ -3,13 +3,14 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from omniplay.callbacks.game_callbacks import GameCallbacks
-from omniplay.common.enums import GameResults, Games
+from omniplay.common.enums import GameResults
 from omniplay.configs.game_config import GameConfig
 from omniplay.core.game import OpenSpielAction, OpenSpielObservation, TurnBasedGame
 from omniplay.core.interface import InterfaceAction, InterfaceObservation, InterfaceTransformer
 from omniplay.core.prompt_adapter import PromptAdapter
 from omniplay.player.player import Player
 from omniplay.trackers.game_tracker import GameTracker
+from omniplay.trackers.player_tracker import PlayerTrackerResolver
 
 
 class TurnBasedEngine(ABC):
@@ -20,13 +21,17 @@ class TurnBasedEngine(ABC):
         self.prompt_adapter = prompt_adapter
         self.action_class = action_class
         self.observation_class = observation_class
+        # set by Registry.build_engine; used to resolve per-player trackers when recording moves.
+        # None when the engine is constructed directly (no per-player `data` recorded). Typed as the
+        # narrow resolver Protocol (which Registry satisfies) so the engine does not depend on Registry.
+        self.trackers: PlayerTrackerResolver | None = None
 
     @abstractmethod
     def reset(self) -> None:
         raise NotImplementedError
 
     @property
-    def game_type(self) -> Games:
+    def game_type(self) -> str:
         return self.game.game_type
 
     def _get_ending(self, player: int) -> InterfaceObservation:
@@ -85,7 +90,8 @@ class TurnBasedEngine(ABC):
             player_output = await player(self.game, observation, actions)
 
             # (6) record the move in the game tracker
-            tracker.add_move(player.player_config, observation, player_output, self.game.serialize_state())
+            tracker.add_move(player.player_config, observation, player_output,
+                             self.game.serialize_state(), self.trackers)
 
             # (7) player callback after the move is executed
             game_callbacks.on_after_move(player, player_output, tracker.steps[-1])

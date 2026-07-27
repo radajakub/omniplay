@@ -4,10 +4,11 @@ from typing import Any
 
 from omniplay.common.enums import GameResults
 from omniplay.common.serializable import Serializable
+from omniplay.configs.parser import ConfigParser
 from omniplay.configs.player_config import PlayerConfig
 from omniplay.core.interface import InterfaceObservation
 from omniplay.player.player import PlayerOutput
-from omniplay.trackers.player_tracker import resolve_player_tracker
+from omniplay.trackers.player_tracker import PlayerTrackerResolver
 
 
 class GameEnding(Serializable):
@@ -78,11 +79,11 @@ class GameStep(Serializable):
 
 class GameTracker(Serializable):
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> GameTracker:
+    def from_dict(cls, data: dict[str, Any], parser: ConfigParser) -> GameTracker:
         return cls(
             int(data['game_round']),
-            PlayerConfig.from_string(data['i_player']),
-            PlayerConfig.from_string(data['o_player']),
+            parser.player_config(data['i_player']),
+            parser.player_config(data['o_player']),
             data['instance_params'],
             [GameStep.from_dict(step) for step in data['steps']] if data['steps'] else [],
             GameEnding.from_dict(data['ending']) if data['ending'] else None,
@@ -104,15 +105,15 @@ class GameTracker(Serializable):
         self.seq += 1
         return self.seq
 
-    def add_move(self, player: PlayerConfig, observation: InterfaceObservation, player_output: PlayerOutput, serialized_state: str) -> None:
+    def add_move(self, player: PlayerConfig, observation: InterfaceObservation, player_output: PlayerOutput, serialized_state: str, trackers: PlayerTrackerResolver | None = None) -> None:
         if player_output.action is None:
             move = f'FAIL: {player_output.failure_reason}'
         else:
             move = player_output.action.to_llm().string
 
         # tokens are benchmark-trackable and recorded generically from the player output;
-        # the player's registered tracker only contributes the player-specific `data` extras.
-        data = resolve_player_tracker(player.key).record(player_output)
+        # the player's registered tracker (if any) contributes the player-specific `data` extras.
+        data = trackers.player_tracker(player.key).record(player_output) if trackers is not None else {}
 
         self.steps.append(GameStep(
             self._next_seq(),
