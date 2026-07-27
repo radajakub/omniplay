@@ -3,7 +3,7 @@ name = "omniplay"
 version = "0.1.0"
 description = "OmniPlay is a benchmark suite for evaluating the performance of LLMs and LLM Agents in simple game environments."
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.13,<3.14"
 dependencies = [
     "google-genai>=2.14.0",
     "numpy>=2.5.1",
