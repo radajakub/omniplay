@@ -60,9 +60,11 @@ def test_config_string_remap():
 
 
 def test_experiment_aggregation_names():
-    assert migrate.merged_experiment('opt_commercial_ttt') == 'commercial_ttt'
-    assert migrate.merged_experiment('rand_commercial_nim') == 'commercial_nim'
-    assert migrate.merged_experiment('rand_ttt') == 'ttt'
+    # opponent prefix and the `commercial_` token both drop -> one experiment per game family
+    assert migrate.merged_experiment('opt_commercial_ttt') == 'ttt'
+    assert migrate.merged_experiment('rand_commercial_nim') == 'nim'
+    assert migrate.merged_experiment('mcts_commercial_connect_four') == 'connect_four'
+    assert migrate.merged_experiment('rand_ttt') == 'ttt'  # rand baseline merges into the same family
 
 
 def test_migration_produces_loadable_new_schema(tmp_path):
@@ -72,23 +74,33 @@ def test_migration_produces_loadable_new_schema(tmp_path):
 
     report = migrate.run_migration(op, source, dest, dry_run=False)
     assert report['matchups'] == 1 and not report['errors']
-    assert report['experiments']['commercial_ttt']['matchups'] == 1
+    assert report['experiments']['ttt']['matchups'] == 1
 
     new_i = registry.player_config('llm:actions:text:metacentrum:glm-5.2:thinking_enabled=True')
     new_o = registry.player_config('random:distribution=uniform')
     game = registry.game_config('tic_tac_toe:')
 
     # the matchup lands under the aggregated experiment with new (llm/metacentrum) paths
-    base = dest / 'results' / 'benchmarks' / 'commercial_ttt' / f'{game.path}_2' / f'{new_i.path}_{new_o.path}'
+    base = dest / 'results' / 'benchmarks' / 'ttt' / f'{game.path}_2' / f'{new_i.path}_{new_o.path}'
     assert (base / 'metadata.json').exists()
 
     metadata = json.loads((base / 'metadata.json').read_text())
-    assert metadata['experiment'] == 'commercial_ttt'
+    assert metadata['experiment'] == 'ttt'
     assert metadata['i_config'] == new_i.to_string() and metadata['o_config'] == new_o.to_string()
 
     # the game file loads back through the new package
     tracker = GameTracker.from_dict(json.loads((base / 'game_1.json').read_text()), registry)
     assert tracker.i_player.hash == new_i.hash and tracker.o_player.hash == new_o.hash
+
+    # a re-runnable benchmark config was reconstructed for the aggregated experiment
+    from omniplay.configs.benchmark_config import BenchmarkConfig
+    config_path = dest / 'experiments' / 'benchmarks' / 'ttt.json'
+    assert config_path.exists()
+    config = BenchmarkConfig.from_dict(json.loads(config_path.read_text()))
+    assert config.num_games == 2
+    assert config.get_game_configs() == [game.to_string()]
+    assert config.get_player_configs() == [new_i.to_string()]
+    assert config.get_opponent_configs() == [new_o.to_string()]
 
     llm_step, bot_step = tracker.steps
     # recomputed identity + LLM extras folded into `data`, tokens preserved
@@ -98,6 +110,36 @@ def test_migration_produces_loadable_new_schema(tmp_path):
     # the bot step has no token concept and no extras
     assert bot_step.player_hash == new_o.hash and bot_step.data is None
     assert bot_step.input_tokens is None
+
+
+def test_opponent_first_game_keeps_its_own_perspective():
+    # a legacy game where the OPPONENT moved first: its i_player is the opponent and the recorded
+    # result is from the opponent's POV. Migration must preserve that (not force the matchup model as
+    # i), otherwise the two players' moves/outcome get swapped for every opponent-started game.
+    from omniplay.common.enums import GameResults
+
+    old_game = {
+        'game_round': 1, 'i_player': OLD_O, 'o_player': OLD_I,
+        'instance_params': {}, 'other_params': {}, 'seq': 2,
+        'steps': [
+            {'seq': 1, 'player_name': 'Random uniform', 'player_hash': 'old-rand-hash',
+             'serialized_state': 'S1', 'observation': 'O1', 'move': '<C1R1>'},
+            {'seq': 2, 'player_name': 'AI ... glm-5.2', 'player_hash': 'old-ai-hash',
+             'serialized_state': 'S2', 'observation': 'O2', 'move': '<C2R2>'},
+        ],
+        'ending': {'seq': 3, 'observation': 'OBS_END', 'result': 0},  # WIN from i_player (opponent) POV
+    }
+    new_i = registry.player_config('llm:actions:text:metacentrum:glm-5.2:thinking_enabled=True')
+    new_o = registry.player_config('random:distribution=uniform')
+
+    tracker = migrate.migrate_game_tracker(op, old_game)
+
+    # the game keeps the opponent (random) as its own first-mover i_player, model as o_player
+    assert tracker.i_player.hash == new_o.hash and tracker.o_player.hash == new_i.hash
+    assert tracker.steps[0].player_hash == new_o.hash and tracker.steps[1].player_hash == new_i.hash
+    # from the MODEL's POV the opponent's WIN inverts to a LOSS (the model was second and lost)
+    assert tracker.get_result(new_i) == GameResults.LOSS
+    assert tracker.get_result(new_o) == GameResults.WIN
 
 
 def test_migrated_tree_is_loadable_by_result_tracker(tmp_path, monkeypatch):
@@ -114,7 +156,15 @@ def test_migrated_tree_is_loadable_by_result_tracker(tmp_path, monkeypatch):
     game = registry.game_config('tic_tac_toe:')
     from omniplay.trackers.result_tracker import ResultTracker
 
-    tracker = ResultTracker.new('commercial_ttt', new_i, new_o, game, 2, registry, path_builder=BenchmarkPathBuilder())
+    tracker = ResultTracker.new('ttt', new_i, new_o, game, 2, registry, path_builder=BenchmarkPathBuilder())
     tracker.load_if_exists()
     assert tracker.is_complete()
     assert all(gt is not None for gt in tracker.games)
+
+    # the generated config drives Benchmark.load_experiment (reads experiments/benchmarks/ttt.json)
+    from omniplay.harness.benchmark import Benchmark
+    benchmark = Benchmark.load_experiment(op, 'ttt')
+    assert benchmark.game_configs == [game.to_string()]
+    assert benchmark.player_configs == [new_i.to_string()]
+    assert benchmark.opponent_configs == [new_o.to_string()]
+    assert benchmark.num_games == 2

@@ -1,5 +1,10 @@
 """One-off migration of the original repo's benchmark result files into the new omniplay schema, while
-aggregating the per-opponent experiments into one experiment per (player-set, game family).
+aggregating the per-opponent experiments into one experiment per game family.
+
+Only the RAW results are migrated; the old `analysis/` tree is not copied (stats are recomputed from the
+results on demand). Alongside the results the migration reconstructs each experiment's benchmark config at
+`<dest>/experiments/benchmarks/<name>.json` (every migrated axis toggled on) so the result tree is
+immediately re-runnable / analysable via `Benchmark.load_experiment`.
 
 It is NON-DESTRUCTIVE: it reads the old `results/benchmarks/` tree and writes a fresh tree under
 `--dest`; the source is never modified. Run with `--dry-run` first to preview the plan.
@@ -9,8 +14,9 @@ Transforms applied per matchup:
     registry so serialization / hash / path are canonical (other configs pass through unchanged);
   * GameStep: `player_name` = new `to_string()`, `player_hash` = new sha256; old flat LLM fields
     (`full_model_output`/`reasoning_trace`/`system_message`/`prompt_message`) fold into `data`;
-  * experiments: the leading opponent prefix (`opt_`/`mcts_`/`rand_`) is stripped so the per-opponent
-    experiments merge (the `<player>_<opponent>` matchup dir keeps them distinct).
+  * experiments: the leading opponent prefix (`opt_`/`mcts_`/`rand_`) and a `commercial_` token are
+    stripped so per-opponent experiments merge into one experiment per game family (`ttt`/`nim`/
+    `connect_four`); the `<player>_<opponent>` matchup dir keeps individual matchups distinct.
 
 Usage:
     uv run python scripts/migrate_legacy_results.py --source ../omniplay --dest ./migrated --dry-run
@@ -21,15 +27,29 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections import Counter
 from collections.abc import Iterator
 from pathlib import Path
+from typing import NamedTuple
 
 from omniplay.app import OmniPlay
 from omniplay.common.enums import GameResults
+from omniplay.configs.benchmark_config import BenchmarkConfig, ToggleItem
 from omniplay.configs.game_config import GameConfig
 from omniplay.configs.player_config import PlayerConfig
 from omniplay.llm import LLMConfig
 from omniplay.trackers.game_tracker import GameEnding, GameStep, GameTracker
+
+
+class MatchupAxes(NamedTuple):
+    """The canonical (destination + axis) info for one migrated matchup, used both for collision
+    detection and to reconstruct the per-experiment benchmark config file."""
+
+    dest: Path
+    game: str
+    player: str
+    opponent: str
+    num_games: int
 
 OPPONENT_PREFIXES = ('opt', 'mcts', 'rand')
 PROVIDER_REMAP = {'os': 'metacentrum'}
@@ -53,7 +73,9 @@ def migrate_config(op: OmniPlay, old: str) -> PlayerConfig:
 
 def merged_experiment(name: str) -> str:
     head, sep, tail = name.partition('_')
-    return tail if sep and head in OPPONENT_PREFIXES else name
+    if sep and head in OPPONENT_PREFIXES:
+        name = tail
+    return name.removeprefix('commercial_')
 
 
 def _step_data(old_step: dict) -> dict[str, str]:
@@ -73,11 +95,16 @@ def migrate_step(old_step: dict, new_i: PlayerConfig, new_o: PlayerConfig, i_old
     )
 
 
-def migrate_game_tracker(old_game: dict, new_i: PlayerConfig, new_o: PlayerConfig) -> GameTracker:
+def migrate_game_tracker(op: OmniPlay, old_game: dict) -> GameTracker:
+    # each game keeps its OWN first mover as i_player (results are recorded from that POV); legacy
+    # matchups alternate starters, so this is not always the matchup's model — the model/opponent
+    # identity lives in the tracker metadata, and the analysis inverts per game as needed.
+    game_i = migrate_config(op, old_game['i_player'])
+    game_o = migrate_config(op, old_game['o_player'])
+
     old_steps = old_game.get('steps') or []
-    # the first recorded step is always the first mover = the tracker's i_player
-    i_old_hash = old_steps[0]['player_hash'] if old_steps else None
-    steps = [migrate_step(step, new_i, new_o, i_old_hash) for step in old_steps]
+    i_old_hash = old_steps[0]['player_hash'] if old_steps else None  # first recorded step = i_player
+    steps = [migrate_step(step, game_i, game_o, i_old_hash) for step in old_steps]
 
     ending = None
     if old_game.get('ending'):
@@ -85,7 +112,7 @@ def migrate_game_tracker(old_game: dict, new_i: PlayerConfig, new_o: PlayerConfi
         ending = GameEnding(end['seq'], end['observation'], GameResults.from_value(end['result']))
 
     return GameTracker(
-        int(old_game['game_round']), new_i, new_o, old_game.get('instance_params', {}),
+        int(old_game['game_round']), game_i, game_o, old_game.get('instance_params', {}),
         steps, ending, int(old_game.get('seq', 0)), old_game.get('other_params', {}),
     )
 
@@ -95,7 +122,7 @@ def _matchup_dest(dest_root: Path, experiment: str, game: GameConfig, new_i: Pla
     return dest_root / 'results' / 'benchmarks' / experiment / f'{game.path}_{n_games}' / f'{new_i.path}_{new_o.path}'
 
 
-def migrate_matchup(op: OmniPlay, src_dir: Path, dest_root: Path, experiment: str, dry_run: bool) -> Path:
+def migrate_matchup(op: OmniPlay, src_dir: Path, dest_root: Path, experiment: str, dry_run: bool) -> MatchupAxes:
     metadata = json.loads((src_dir / 'metadata.json').read_text())
     new_i = migrate_config(op, metadata['i_config'])
     new_o = migrate_config(op, metadata['o_config'])
@@ -103,8 +130,9 @@ def migrate_matchup(op: OmniPlay, src_dir: Path, dest_root: Path, experiment: st
     n_games = int(metadata['n_games'])
 
     dest = _matchup_dest(dest_root, experiment, game, new_i, new_o, n_games)
+    axes = MatchupAxes(dest, game.to_string(), new_i.to_string(), new_o.to_string(), n_games)
     if dry_run:
-        return dest
+        return axes
 
     dest.mkdir(parents=True, exist_ok=True)
     (dest / 'metadata.json').write_text(json.dumps({
@@ -116,9 +144,9 @@ def migrate_matchup(op: OmniPlay, src_dir: Path, dest_root: Path, experiment: st
         'completed': list(metadata['completed']),
     }))
     for game_file in sorted(src_dir.glob('game_*.json')):
-        tracker = migrate_game_tracker(json.loads(game_file.read_text()), new_i, new_o)
+        tracker = migrate_game_tracker(op, json.loads(game_file.read_text()))
         (dest / game_file.name).write_text(json.dumps(tracker.to_dict()))
-    return dest
+    return axes
 
 
 def iter_matchups(source_results: Path) -> Iterator[tuple[str, Path]]:
@@ -129,6 +157,29 @@ def iter_matchups(source_results: Path) -> Iterator[tuple[str, Path]]:
                     yield experiment_dir.name, matchup_dir
 
 
+def _new_group() -> dict:
+    return {'sources': set(), 'matchups': 0, 'games': set(), 'players': set(), 'opponents': set(), 'num_games': Counter()}
+
+
+def _experiment_config(group: dict) -> BenchmarkConfig:
+    # every migrated matchup is a matrix cell we want re-runnable, so all axes are toggled on
+    return BenchmarkConfig(
+        [ToggleItem(value, True) for value in sorted(group['games'])],
+        [ToggleItem(value, True) for value in sorted(group['players'])],
+        [ToggleItem(value, True) for value in sorted(group['opponents'])],
+        group['num_games'].most_common(1)[0][0],
+    )
+
+
+def _write_experiment_configs(dest_root: Path, experiments: dict, report: dict) -> None:
+    config_dir = dest_root / 'experiments' / 'benchmarks'
+    config_dir.mkdir(parents=True, exist_ok=True)
+    for name, group in experiments.items():
+        if len(group['num_games']) > 1:  # BenchmarkConfig holds a single num_games (matchup dirs keep their own <game>_<n>)
+            report['errors'].append((name, f'mixed num_games {dict(group["num_games"])}, config uses {group["num_games"].most_common(1)[0][0]}'))
+        (config_dir / f'{name}.json').write_text(json.dumps(_experiment_config(group).to_dict(), indent=2))
+
+
 def run_migration(op: OmniPlay, source_results: Path, dest_root: Path, dry_run: bool = False) -> dict:
     report: dict = {'experiments': {}, 'matchups': 0, 'errors': []}
     seen: dict[Path, str] = {}
@@ -136,28 +187,38 @@ def run_migration(op: OmniPlay, source_results: Path, dest_root: Path, dry_run: 
     for exp_name, matchup_dir in iter_matchups(source_results):
         merged = merged_experiment(exp_name)
         try:
-            dest = migrate_matchup(op, matchup_dir, dest_root, merged, dry_run)
+            axes = migrate_matchup(op, matchup_dir, dest_root, merged, dry_run)
         except Exception as error:  # noqa: BLE001 - surface the offending matchup, keep going
             report['errors'].append((str(matchup_dir), repr(error)))
             continue
 
-        if dest in seen and seen[dest] != str(matchup_dir):
-            report['errors'].append((str(matchup_dir), f'destination collision with {seen[dest]}'))
+        if axes.dest in seen and seen[axes.dest] != str(matchup_dir):
+            report['errors'].append((str(matchup_dir), f'destination collision with {seen[axes.dest]}'))
             continue
-        seen[dest] = str(matchup_dir)
+        seen[axes.dest] = str(matchup_dir)
 
-        group = report['experiments'].setdefault(merged, {'sources': set(), 'matchups': 0})
+        group = report['experiments'].setdefault(merged, _new_group())
         group['sources'].add(exp_name)
         group['matchups'] += 1
+        group['games'].add(axes.game)
+        group['players'].add(axes.player)
+        group['opponents'].add(axes.opponent)
+        group['num_games'][axes.num_games] += 1
         report['matchups'] += 1
+
+    if not dry_run:
+        _write_experiment_configs(dest_root, report['experiments'], report)
 
     return report
 
 
 def _print_report(report: dict, dry_run: bool) -> None:
-    print(f'{"[dry-run] " if dry_run else ""}migrated {report["matchups"]} matchups into {len(report["experiments"])} experiments:')
+    prefix = '[dry-run] ' if dry_run else ''
+    print(f'{prefix}migrated {report["matchups"]} matchups into {len(report["experiments"])} experiments:')
     for experiment, group in sorted(report['experiments'].items()):
-        print(f'  {experiment}: {group["matchups"]} matchups  <- {", ".join(sorted(group["sources"]))}')
+        print(f'  {experiment}: {group["matchups"]} matchups, {len(group["players"])} players x {len(group["opponents"])} opponents x {len(group["games"])} games  <- {", ".join(sorted(group["sources"]))}')
+    if not dry_run and report['experiments']:
+        print(f'wrote {len(report["experiments"])} experiment config(s) to experiments/benchmarks/')
     for path, error in report['errors']:
         print(f'  ERROR {path}: {error}')
 
