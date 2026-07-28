@@ -1,9 +1,35 @@
 [project]
 name = "omniplay"
-version = "0.1.0"
+version = "1.0.0"
 description = "OmniPlay is a benchmark suite for evaluating the performance of LLMs and LLM Agents in simple game environments."
 readme = "README.md"
-requires-python = ">=3.13,<3.14"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Jakub Rada", email = "radajak5@fel.cvut.cz" }]
+keywords = [
+    "llm",
+    "large-language-models",
+    "ai",
+    "artificial-intelligence",
+    "game-theory",
+    "benchmark",
+    "games",
+    "agents",
+    "evaluation",
+    "openspiel",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Games/Entertainment :: Board Games",
+    "Typing :: Typed",
+]
 dependencies = [
     "google-genai>=2.14.0",
     "numpy>=2.5.1",
@@ -14,6 +40,11 @@ dependencies = [
     "scipy>=1.18.0",
     "tqdm>=4.69.1",
 ]
+
+[project.urls]
+Homepage = "https://omniplay.jakubrada.com"
+Repository = "https://github.com/radajakub/omniplay"
+Issues = "https://github.com/radajakub/omniplay/issues"
 
 [build-system]
 requires = ["hatchling"]
