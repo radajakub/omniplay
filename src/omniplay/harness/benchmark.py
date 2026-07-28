@@ -7,6 +7,7 @@ from omniplay.app import OmniPlay
 from omniplay.callbacks.benchmark_callbacks import BenchmarkCallbacks
 from omniplay.callbacks.game_callbacks import GameCallbacks
 from omniplay.common.paths import BenchmarkPathBuilder
+from omniplay.common.progress import track
 from omniplay.configs.benchmark_config import BenchmarkConfig
 from omniplay.configs.matchup import Matchup
 from omniplay.harness.matchup import run_matchup
@@ -84,20 +85,19 @@ class Benchmark:
         )
         return str(tracker.base_path)
 
-    def get_results(self) -> BenchmarkResults:
+    def get_results(self, progress: bool | None = None) -> BenchmarkResults:
         game_configs = [self.op.registry.game_config(game) for game in self.game_configs]
         player_configs = [self.op.registry.player_config(player) for player in self.player_configs]
         opponent_configs = [self.op.registry.player_config(opponent) for opponent in self.opponent_configs]
 
+        matrix = [(player, opponent, game) for player in player_configs for opponent in opponent_configs for game in game_configs]
         trackers: list[ResultTracker] = []
-        for player_config in player_configs:
-            for opponent_config in opponent_configs:
-                for game_config in game_configs:
-                    tracker = ResultTracker.new(
-                        self.experiment, player_config, opponent_config, game_config,
-                        self.num_games, self.op.registry, path_builder=self.path_builder,
-                    )
-                    tracker.load_if_exists()
-                    trackers.append(tracker)
+        for player_config, opponent_config, game_config in track(matrix, 'Loading results', len(matrix), progress):
+            tracker = ResultTracker.new(
+                self.experiment, player_config, opponent_config, game_config,
+                self.num_games, self.op.registry, path_builder=self.path_builder,
+            )
+            tracker.load_if_exists()
+            trackers.append(tracker)
 
         return BenchmarkResults(game_configs, player_configs, opponent_configs, trackers)

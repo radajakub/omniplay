@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from omniplay.analysis.stats.compute import compute_matchup_stats
 from omniplay.analysis.stats.matchup_stats import MatchupStats
+from omniplay.common.progress import track
 from omniplay.configs.game_config import GameConfig
 from omniplay.configs.player_config import PlayerConfig
 from omniplay.harness.results import BenchmarkResults
@@ -25,5 +26,6 @@ class BenchmarkAnalysis:
         tracker = self.results.find(game_config, player_config, opponent_config)
         return compute_matchup_stats(tracker, self.registry, self.confidence, self.include_fails)
 
-    def analyze(self) -> list[MatchupStats]:
-        return [compute_matchup_stats(tracker, self.registry, self.confidence, self.include_fails) for tracker in self.results.trackers]
+    def analyze(self, progress: bool | None = None) -> list[MatchupStats]:
+        trackers = track(self.results.trackers, 'Computing stats', len(self.results.trackers), progress)
+        return [compute_matchup_stats(tracker, self.registry, self.confidence, self.include_fails) for tracker in trackers]
