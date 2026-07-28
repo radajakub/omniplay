@@ -72,3 +72,25 @@ class StateClass(ExtendedEnum):
     @property
     def is_forced(self) -> bool:
         return self in (StateClass.DONT_CARE, StateClass.LOST)
+
+
+class CIFamily(ExtendedEnum):
+    RATIO = 'ratio'  # a proportion in [0, 1] -> Wilson interval
+    MEAN = 'mean'    # a real-valued mean -> SEM / t / bootstrap intervals
+
+
+class MetricName(ExtendedEnum):
+    WIN_RATE = 'win_rate'
+    DRAW_RATE = 'draw_rate'
+    LOSS_RATE = 'loss_rate'
+    FAIL_RATE = 'fail_rate'
+    SCORE = 'score'
+    MOVES_PER_GAME = 'moves_per_game'
+    INPUT_TOKENS_PER_GAME = 'input_tokens_per_game'
+    OUTPUT_TOKENS_PER_GAME = 'output_tokens_per_game'
+    INPUT_TOKENS_PER_MOVE = 'input_tokens_per_move'
+    OUTPUT_TOKENS_PER_MOVE = 'output_tokens_per_move'
+    # produced only for solvable games via replay (Phase 6b)
+    OPTIMALITY_RATE = 'optimality_rate'
+    OPTIMALITY_RATE_NON_TRIVIAL = 'optimality_rate_non_trivial'
+    REGRET = 'regret'
