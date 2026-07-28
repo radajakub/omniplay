@@ -7,11 +7,6 @@ from omniplay.registry import Registry
 
 
 class OmniPlay:
-    """Central application object (`op`). Building one is the one-stop bootstrap: it creates the
-    instance-scoped `op.registry` (no global state), registers the built-in games and players into it,
-    and instantiates the LLM router (which the LLM players use). External code extends via
-    `op.registry.register_game(...)` / `op.registry.register_player(...)`."""
-
     def __init__(self, llm_config: LLMConfig | None = None) -> None:
         self._registry = Registry()
         self._llm = LLM(llm_config if llm_config is not None else LLMConfig.from_env())

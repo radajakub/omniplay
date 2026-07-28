@@ -6,9 +6,6 @@ from omniplay.trackers.result_tracker import ResultTracker
 
 
 class BenchmarkResults:
-    """Lookup over the result trackers of a benchmark run, keyed by (game, player, opponent). Players
-    and opponents are matched by their config hash, games by their canonical string."""
-
     def __init__(self, game_configs: list[GameConfig], player_configs: list[PlayerConfig], opponent_configs: list[PlayerConfig], trackers: list[ResultTracker]) -> None:
         self.game_configs = game_configs
         self.player_configs = player_configs
@@ -24,7 +21,8 @@ class BenchmarkResults:
         key = self._key(game_config, player_config, opponent_config)
         tracker = self._index.get(key)
         if tracker is None:
-            raise ValueError(f'No result for game={game_config.to_string()} player={player_config.to_string()} opponent={opponent_config.to_string()}')
+            raise ValueError(
+                f'No result for game={game_config.to_string()} player={player_config.to_string()} opponent={opponent_config.to_string()}')
         return tracker
 
     def for_player(self, player_config: PlayerConfig) -> list[ResultTracker]:

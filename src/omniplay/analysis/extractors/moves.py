@@ -8,8 +8,6 @@ from omniplay.trackers.game_tracker import GameTracker
 
 
 class MovesPerGameExtractor(Extractor):
-    """Number of moves the analysed player made in each game."""
-
     def __init__(self) -> None:
         super().__init__(MetricName.MOVES_PER_GAME, CIFamily.MEAN)
 

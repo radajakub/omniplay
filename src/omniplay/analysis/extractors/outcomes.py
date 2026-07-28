@@ -8,8 +8,6 @@ from omniplay.trackers.game_tracker import GameTracker
 
 
 class OutcomeExtractor(Extractor):
-    """Fraction of games whose result (from the analysed player's POV) falls in `targets`."""
-
     def __init__(self, name: MetricName, targets: list[GameResults]) -> None:
         super().__init__(name, CIFamily.RATIO)
         self._targets = targets

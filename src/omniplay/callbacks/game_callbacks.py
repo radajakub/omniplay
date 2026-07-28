@@ -43,9 +43,6 @@ class GameCallbacks:
 
     @classmethod
     def combine(cls, *bundles: GameCallbacks | None) -> GameCallbacks:
-        """Fan-out composite: return a GameCallbacks whose every hook invokes each bundle's
-        corresponding hook, in order. Lets a caller mix a non-player logging/orchestration bundle
-        with optional per-player bundles. The engine is unchanged (it still calls on_*)."""
         children = tuple(bundle for bundle in bundles if bundle is not None)
 
         def fan(method_name: str) -> Callable[..., None]:
@@ -63,8 +60,6 @@ class GameCallbacks:
 
     @staticmethod
     def for_player(player_config: PlayerConfig, bundle: GameCallbacks) -> GameCallbacks:
-        """Scope a bundle's per-move hooks to a single player: on_before_move/on_after_move fire only
-        on that player's turns. Game-level hooks (on_game_start/on_game_end) still fire for everyone."""
         def scoped_before(player: Player, observation: InterfaceObservation, legal_moves: list[InterfaceAction]) -> None:
             if player.player_config.hash == player_config.hash:
                 bundle.on_before_move(player, observation, legal_moves)

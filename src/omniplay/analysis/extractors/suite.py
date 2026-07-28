@@ -9,8 +9,6 @@ from omniplay.common.enums import GameResults, MetricName
 
 
 def default_suite(include_fails: bool = False) -> list[Extractor]:
-    """The benchmark metric suite computed purely from recorded fields (no replay). `include_fails`
-    folds the analysed player's own failed games into the loss rate."""
     loss_targets = [GameResults.LOSS] + ([GameResults.MY_FAIL] if include_fails else [])
     return [
         OutcomeExtractor(MetricName.WIN_RATE, [GameResults.WIN]),

@@ -54,8 +54,6 @@ class BenchmarkCallbacks:
 
     @classmethod
     def combine(cls, *bundles: BenchmarkCallbacks | None) -> BenchmarkCallbacks:
-        """Fan-out composite: every hook invokes each bundle's corresponding hook, in order. Lets a
-        caller mix a console-progress bundle with an agent's own orchestration handlers."""
         children = tuple(bundle for bundle in bundles if bundle is not None)
 
         def fan(method_name: str) -> Callable[..., None]:
@@ -75,8 +73,6 @@ class BenchmarkCallbacks:
 
 
 def console_benchmark_callbacks() -> BenchmarkCallbacks:
-    """Minimal default progress reporter built on the callbacks; prints one line per matchup boundary."""
-
     def on_matchup_start(result_tracker: ResultTracker, game_config: GameConfig, i: PlayerConfig, o: PlayerConfig) -> None:
         done = len(result_tracker.get_completed_games())
         print(f'[benchmark] {game_config.path}: {i.path} vs {o.path} ({done}/{result_tracker.n})')

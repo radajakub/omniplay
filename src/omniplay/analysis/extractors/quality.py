@@ -16,9 +16,6 @@ ReplayFn = Callable[[GameTracker], list[StepStats]]
 
 
 class OptimalityRateExtractor(Extractor):
-    """Fraction of the analysed player's judged moves that were optimal. `non_trivial` restricts to
-    genuine-choice (DECISION) states, where the optimal set is a strict subset of the legal moves."""
-
     def __init__(self, replay: ReplayFn, non_trivial: bool = False) -> None:
         name = MetricName.OPTIMALITY_RATE_NON_TRIVIAL if non_trivial else MetricName.OPTIMALITY_RATE
         super().__init__(name, CIFamily.RATIO)
@@ -36,8 +33,6 @@ class OptimalityRateExtractor(Extractor):
 
 
 class RegretExtractor(Extractor):
-    """Mean regret (state value minus the value of the move actually played) over the player's moves."""
-
     def __init__(self, replay: ReplayFn) -> None:
         super().__init__(MetricName.REGRET, CIFamily.MEAN)
         self._replay = replay
@@ -51,7 +46,6 @@ class RegretExtractor(Extractor):
 
 
 def quality_extractors(registry: Registry, game_config: GameConfig, player_config: PlayerConfig) -> list[Extractor]:
-    """The optimality/regret extractors for a solvable game, sharing one memoized replay of the games."""
     replay = MemoizedReplay(build_replayer(registry, game_config), player_config)
     return [
         OptimalityRateExtractor(replay),

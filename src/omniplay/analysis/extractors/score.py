@@ -16,8 +16,6 @@ _SCORE = {
 
 
 class ScoreExtractor(Extractor):
-    """Mean per-game score (win = 1, draw = 0.5, loss = 0; opponent fail counts as a win, own fail as a loss)."""
-
     def __init__(self) -> None:
         super().__init__(MetricName.SCORE, CIFamily.MEAN)
 

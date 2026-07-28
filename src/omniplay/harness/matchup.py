@@ -58,9 +58,6 @@ async def run_matchup(
     save_on_record: bool = True,
     max_concurrent: int | None = None,
 ) -> ResultTracker:
-    """Run all rounds of a single matchup, resuming from any already persisted rounds. This is the
-    self-contained unit the benchmark (and any richer evaluation flow) builds on: it owns resumption,
-    colour balancing, per-round concurrency and persistence."""
     benchmark_callbacks = benchmark_callbacks if benchmark_callbacks is not None else BenchmarkCallbacks()
     experiment = experiment if experiment is not None else f'run_{uuid.uuid4().hex}'
     path_builder = path_builder if path_builder is not None else BenchmarkPathBuilder()

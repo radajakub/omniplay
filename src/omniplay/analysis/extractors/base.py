@@ -9,9 +9,6 @@ from omniplay.trackers.game_tracker import GameTracker
 
 
 class Extractor(ABC):
-    """Turns a matchup's games into one metric's `Distribution` for the analysed player. `family`
-    decides which confidence intervals the composing step attaches (ratio -> Wilson, mean -> SEM/t/boot)."""
-
     def __init__(self, name: MetricName, family: CIFamily) -> None:
         self.name = name
         self.family = family

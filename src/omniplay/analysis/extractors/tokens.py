@@ -13,8 +13,6 @@ def _player_steps(game: GameTracker, player: PlayerConfig, attr: str) -> list[Ga
 
 
 class TotalTokensExtractor(Extractor):
-    """Total tokens the analysed player spent per game (summed over its moves)."""
-
     def __init__(self, name: MetricName, attr: str) -> None:
         super().__init__(name, CIFamily.MEAN)
         self._attr = attr
@@ -27,8 +25,6 @@ class TotalTokensExtractor(Extractor):
 
 
 class PerMoveTokensExtractor(Extractor):
-    """Tokens the analysed player spent on each individual move (one observation per move)."""
-
     def __init__(self, name: MetricName, attr: str) -> None:
         super().__init__(name, CIFamily.MEAN)
         self._attr = attr

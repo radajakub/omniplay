@@ -11,10 +11,6 @@ from omniplay.trackers.player_tracker import NoOpTracker, PlayerTracker
 
 
 class Registry:
-    """Instance-scoped plugin registry owned by an OmniPlay object (`op.registry`). Holds the games and
-    players. External code extends it via register_game / register_player without touching the package,
-    and there is no global mutable state."""
-
     def __init__(self) -> None:
         self._games: dict[str, GameSpec] = {}
         self._players: dict[str, PlayerSpec] = {}

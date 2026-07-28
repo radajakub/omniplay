@@ -4,25 +4,9 @@ from dataclasses import dataclass
 from typing import Any
 
 from omniplay.common.serializable import Serializable
-from omniplay.utils.text import to_bool
+from omniplay.configs.toggle_item import ToggleItem
 
 DEFAULT_OPPONENT = 'optimal:stochastic=True'
-
-
-@dataclass(frozen=True, eq=True)
-class ToggleItem(Serializable):
-    """A config string paired with an on/off flag, used in benchmark experiment files so a matrix of
-    games/players/opponents can be defined once and individual entries toggled without deleting them."""
-
-    value: str
-    enabled: bool
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> ToggleItem:
-        return cls(data['value'], to_bool(data['enabled']))
-
-    def to_dict(self) -> dict[str, Any]:
-        return {'value': self.value, 'enabled': self.enabled}
 
 
 @dataclass(frozen=True, eq=True)

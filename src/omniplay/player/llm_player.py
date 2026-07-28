@@ -125,9 +125,6 @@ class LLMPlayer(Player):
 
 
 class LLMPlayerTracker(PlayerTracker):
-    """Persists the LLM player's per-turn extras into the GameStep `data` field (tokens are recorded
-    generically by the tracker framework). `reasoning_trace` is what the recognition analysis reads."""
-
     def record(self, player_output: PlayerOutput) -> dict[str, Any]:
         data: dict[str, Any] = {}
         if player_output.reasoning_trace:

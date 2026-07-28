@@ -16,15 +16,11 @@ from omniplay.trackers.result_tracker import ResultTracker
 
 
 class Benchmark:
-    """Single-phase orchestrator over the full (player x opponent x game) matrix, each matchup played
-    `num_games` rounds. It is one composition over `run_matchup`; a multi-phase evaluation would
-    sequence several such runs over the same `op`. The matrix is fully general (self-play and both
-    orderings included); the per-axis overrides restrict it at run time."""
-
     @classmethod
     def load_experiment(cls, op: OmniPlay, filename: str, game_override: list[str] | None = None, player_override: list[str] | None = None, opponent_override: list[str] | None = None) -> Benchmark:
         path_builder = BenchmarkPathBuilder()
         path = path_builder.experiment_path(filename)
+
         with open(path) as f:
             config = BenchmarkConfig.from_dict(json.load(f))
 
@@ -53,18 +49,25 @@ class Benchmark:
             for game in self.game_configs
         ]
 
+    async def _run_sync(self, concurrency: int | None = None, game_callbacks: GameCallbacks | None = None, benchmark_callbacks: BenchmarkCallbacks | None = None):
+        for game, player, opponent in self._matrix():
+            await self.single_matchup(game, player, opponent, concurrency, game_callbacks, benchmark_callbacks)
+
+    async def _run_async(self, concurrency: int | None = None, game_callbacks: GameCallbacks | None = None, benchmark_callbacks: BenchmarkCallbacks | None = None):
+        await asyncio.gather(*(
+            asyncio.create_task(self.single_matchup(game, player, opponent,
+                                concurrency, game_callbacks, benchmark_callbacks))
+            for game, player, opponent in self._matrix()
+        ))
+
     async def run(self, sync: bool = False, concurrency: int | None = None, game_callbacks: GameCallbacks | None = None, benchmark_callbacks: BenchmarkCallbacks | None = None) -> BenchmarkResults:
         benchmark_callbacks = benchmark_callbacks if benchmark_callbacks is not None else BenchmarkCallbacks()
         benchmark_callbacks.on_benchmark_start(self.game_configs, self.player_configs, self.opponent_configs)
 
         if sync:
-            for game, player, opponent in self._matrix():
-                await self.single_matchup(game, player, opponent, concurrency, game_callbacks, benchmark_callbacks)
+            await self._run_sync(concurrency, game_callbacks, benchmark_callbacks)
         else:
-            await asyncio.gather(*(
-                asyncio.create_task(self.single_matchup(game, player, opponent, concurrency, game_callbacks, benchmark_callbacks))
-                for game, player, opponent in self._matrix()
-            ))
+            await self._run_async(concurrency, game_callbacks, benchmark_callbacks)
 
         results = self.get_results()
         benchmark_callbacks.on_benchmark_end(results)
@@ -90,7 +93,8 @@ class Benchmark:
         player_configs = [self.op.registry.player_config(player) for player in self.player_configs]
         opponent_configs = [self.op.registry.player_config(opponent) for opponent in self.opponent_configs]
 
-        matrix = [(player, opponent, game) for player in player_configs for opponent in opponent_configs for game in game_configs]
+        matrix = [(player, opponent, game)
+                  for player in player_configs for opponent in opponent_configs for game in game_configs]
         trackers: list[ResultTracker] = []
         for player_config, opponent_config, game_config in track(matrix, 'Loading results', len(matrix), progress):
             tracker = ResultTracker.new(

@@ -14,9 +14,6 @@ from omniplay.trackers.game_tracker import GameTracker
 
 
 class ResultTracker(Saveable):
-    """Metadata file + per-round game files for a single matchup. Resumable and atomic-write.
-    Parsing configs / loading games needs the parser, which is held on the tracker."""
-
     @staticmethod
     def split_games_by_starting_player(games: list[GameTracker], player: PlayerConfig) -> tuple[list[GameTracker], list[GameTracker]]:
         i_games = [game for game in games if game.i_player.hash == player.hash]
