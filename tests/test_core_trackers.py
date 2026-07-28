@@ -10,6 +10,7 @@ from omniplay.common.enums import GameResults
 from omniplay.configs.player_config import PlayerConfig
 from omniplay.configs.player_params import PlayerParams
 from omniplay.player.player import PlayerOutput
+from omniplay.player.spec import PlayerSpec
 from omniplay.registry import Registry
 from omniplay.trackers.game_tracker import GameTracker
 from omniplay.trackers.player_tracker import PlayerTracker
@@ -28,8 +29,8 @@ class _StubParams(PlayerParams):
         return self.label
 
     @property
-    def path(self) -> str:
-        return f'stub_{self.label}'
+    def path_suffix(self) -> str:
+        return self.label
 
 
 class _LLMTracker(PlayerTracker):
@@ -55,9 +56,9 @@ class _StubObservation:
 
 
 registry = Registry()
-registry.register_player_params('stub', _StubParams)
-registry.register_player_params('ai', _StubParams)
-registry.register_player_tracker('ai', _LLMTracker())
+# build is unused in these tests (they drive GameTracker directly), so a trivial builder is fine
+registry.register_player(PlayerSpec('stub', _StubParams, lambda game, cfg, pid: None))
+registry.register_player(PlayerSpec('ai', _StubParams, lambda game, cfg, pid: None, tracker=_LLMTracker()))
 
 
 # --- tests -----------------------------------------------------------------------------------

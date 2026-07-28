@@ -15,5 +15,6 @@ class PlayerParams(ABC):
 
     @property
     @abstractmethod
-    def path(self) -> str:
+    def path_suffix(self) -> str:
+        """The player-specific part of the result path (may be empty); PlayerConfig prefixes the key."""
         raise NotImplementedError

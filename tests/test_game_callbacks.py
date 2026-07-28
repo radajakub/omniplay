@@ -21,7 +21,7 @@ class _P(PlayerParams):
         return self.label
 
     @property
-    def path(self) -> str:
+    def path_suffix(self) -> str:
         return self.label
 
 

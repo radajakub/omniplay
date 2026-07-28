@@ -16,7 +16,8 @@ class PlayerConfig:
 
     @property
     def path(self) -> str:
-        return self.params.path
+        suffix = self.params.path_suffix
+        return f'{self.key}_{suffix}' if suffix else self.key
 
     @property
     def hash(self) -> str:

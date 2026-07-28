@@ -16,7 +16,6 @@ from omniplay.llm.response import (
     OutputText,
     ReasoningTrace,
 )
-from omniplay.llm.router import LLM
 from omniplay.llm.tokens import LLMTokens
 
 __all__ = [
@@ -39,3 +38,14 @@ __all__ = [
     'EmbeddingResponse',
     'LLMTokens',
 ]
+
+
+# The LLM router pulls the provider SDKs (openai / google-genai), so expose it lazily: importing the
+# light LLM value types (LLMMessage, ModelConfig, LLMResponse, ...) -- e.g. from core.prompt_adapter --
+# must not drag in those SDKs. `from omniplay.llm import LLM` still works (triggers this on access).
+def __getattr__(name: str) -> object:
+    if name == 'LLM':
+        from omniplay.llm.router import LLM
+
+        return LLM
+    raise AttributeError(f'module {__name__!r} has no attribute {name!r}')

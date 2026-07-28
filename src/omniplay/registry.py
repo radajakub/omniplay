@@ -2,22 +2,22 @@ from __future__ import annotations
 
 from omniplay.configs.game_config import GameConfig
 from omniplay.configs.player_config import PlayerConfig
-from omniplay.configs.player_params import PlayerParams
-from omniplay.games.spec import GameSpec
-from omniplay.trackers.player_tracker import NoOpTracker, PlayerTracker
-
 from omniplay.core.engine import TurnBasedEngine
+from omniplay.core.game import TurnBasedGame
+from omniplay.games.spec import GameSpec
+from omniplay.player.player import Player, PlayerIdentifier
+from omniplay.player.spec import PlayerSpec
+from omniplay.trackers.player_tracker import NoOpTracker, PlayerTracker
 
 
 class Registry:
-    """Instance-scoped plugin registry owned by an OmniPlay object (`op.registry`). Holds the games,
-    player-params, and per-player trackers. External code extends it via register_game / register_player
-    without touching the package, and there is no global mutable state."""
+    """Instance-scoped plugin registry owned by an OmniPlay object (`op.registry`). Holds the games and
+    players. External code extends it via register_game / register_player without touching the package,
+    and there is no global mutable state."""
 
     def __init__(self) -> None:
         self._games: dict[str, GameSpec] = {}
-        self._player_params: dict[str, type[PlayerParams]] = {}
-        self._player_trackers: dict[str, PlayerTracker] = {}
+        self._players: dict[str, PlayerSpec] = {}
         self._noop_tracker = NoOpTracker()
 
     # --- games ------------------------------------------------------------------------------
@@ -45,23 +45,26 @@ class Registry:
     def solvable(self, key: str) -> bool:
         return self.resolve_game(key).solvable
 
-    # --- player params ----------------------------------------------------------------------
-    def register_player_params(self, key: str, params_cls: type[PlayerParams]) -> None:
-        self._player_params[key] = params_cls
+    # --- players ----------------------------------------------------------------------------
+    def register_player(self, spec: PlayerSpec) -> None:
+        self._players[spec.key] = spec
+
+    def resolve_player(self, key: str) -> PlayerSpec:
+        spec = self._players.get(key)
+        if spec is None:
+            raise ValueError(f'No player registered for key {key!r}; registered: {self.player_keys()}')
+        return spec
 
     def player_keys(self) -> list[str]:
-        return sorted(self._player_params)
+        return sorted(self._players)
 
     def player_config(self, config_string: str) -> PlayerConfig:
         key, _, params_string = config_string.partition(':')
-        params_cls = self._player_params.get(key)
-        if params_cls is None:
-            raise ValueError(f'No player registered for key {key!r}; registered: {self.player_keys()}')
-        return PlayerConfig(key, params_cls.from_string(params_string))
+        return PlayerConfig(key, self.resolve_player(key).params_cls.from_string(params_string))
 
-    # --- per-player trackers ----------------------------------------------------------------
-    def register_player_tracker(self, key: str, tracker: PlayerTracker) -> None:
-        self._player_trackers[key] = tracker
+    def build_player(self, game: TurnBasedGame, player_config: PlayerConfig, identifier: PlayerIdentifier) -> Player:
+        return self.resolve_player(player_config.key).build(game, player_config, identifier)
 
     def player_tracker(self, key: str) -> PlayerTracker:
-        return self._player_trackers.get(key, self._noop_tracker)
+        spec = self._players.get(key)
+        return spec.tracker if spec is not None and spec.tracker is not None else self._noop_tracker

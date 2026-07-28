@@ -36,8 +36,8 @@ class _RandParams(PlayerParams):
         return self.seed
 
     @property
-    def path(self) -> str:
-        return f'rand_{self.seed}'
+    def path_suffix(self) -> str:
+        return self.seed
 
 
 class _RandomPlayer(Player):
