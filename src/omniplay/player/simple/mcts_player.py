@@ -25,17 +25,17 @@ class MctsParams(PlayerParams):
     def from_string(cls, params_string: str) -> MctsParams:
         params = extract_params(params_string)
         return cls(
-            max_simulations=int(params.get('max_simulations', 1000)),
-            rollout_count=int(params.get('rollout_count', 1)),
-            uct_c=float(params.get('uct_c', 2)),
+            max_simulations=int(params.get("max_simulations", 1000)),
+            rollout_count=int(params.get("rollout_count", 1)),
+            uct_c=float(params.get("uct_c", 2)),
         )
 
     def to_string(self) -> str:
-        return f'max_simulations={self.max_simulations},rollout_count={self.rollout_count},uct_c={self.uct_c}'
+        return f"max_simulations={self.max_simulations},rollout_count={self.rollout_count},uct_c={self.uct_c}"
 
     @property
     def path_suffix(self) -> str:
-        return f'{self.max_simulations}_sims_{self.rollout_count}_rollouts_{self.uct_c}_uct'
+        return f"{self.max_simulations}_sims_{self.rollout_count}_rollouts_{self.uct_c}_uct"
 
 
 class MCTSPlayer(Player):
@@ -60,7 +60,7 @@ class MCTSPlayer(Player):
 
     async def __call__(self, game: TurnBasedGame, observation: InterfaceObservation, legal_moves: list[InterfaceAction]) -> PlayerOutput:
         if self._bot is None:
-            raise ValueError('MCTS policy not initialized')
+            raise ValueError("MCTS policy not initialized")
 
         action_number = self._bot.step(game.state.clone())
         action = next((move for move in legal_moves if move.number == action_number), None)
@@ -68,4 +68,4 @@ class MCTSPlayer(Player):
         return PlayerOutput(action=action)
 
     def format_llm_output(self, player_output: PlayerOutput) -> str:
-        return ''
+        return ""

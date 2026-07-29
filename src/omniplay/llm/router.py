@@ -7,10 +7,10 @@ from omniplay.llm.llm_config import LLMConfig
 from omniplay.llm.message import LLMMessage
 from omniplay.llm.model import LLMModel
 from omniplay.llm.model_config import ModelConfig
-from omniplay.llm.providers.providers import Provider
 from omniplay.llm.providers.gemini.client import GeminiLLMClient
 from omniplay.llm.providers.metacentrum.client import MetacentrumLLMClient
 from omniplay.llm.providers.openai.client import OpenAILLMClient
+from omniplay.llm.providers.providers import Provider
 from omniplay.llm.response import EmbeddingResponse, LLMResponse
 from omniplay.llm.tokens import LLMTokens
 
@@ -28,10 +28,7 @@ class LLM:
     def _route(self, provider: Provider) -> LLMClient:
         client = self._provider_map.get(provider)
         if client is None:
-            raise ValueError(
-                f'Provider {provider.value} is not configured (missing credentials). '
-                f'Available providers: {[p.value for p in self._provider_map]}'
-            )
+            raise ValueError(f"Provider {provider.value} is not configured (missing credentials). Available providers: {[p.value for p in self._provider_map]}")
         return client
 
     @property

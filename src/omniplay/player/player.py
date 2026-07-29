@@ -10,16 +10,16 @@ from omniplay.core.game import TurnBasedGame
 from omniplay.core.interface import InterfaceAction, InterfaceObservation
 from omniplay.core.prompt_adapter import PromptAdapter
 
-type PlayerIdentifier = Literal['i', 'o']
+type PlayerIdentifier = Literal["i", "o"]
 
 
 @dataclass
 class PlayerOutput:
     action: InterfaceAction | None = None
-    system_message: str = ''
-    prompt_message: str = ''
-    reasoning_trace: str = ''
-    full_output: str = ''
+    system_message: str = ""
+    prompt_message: str = ""
+    reasoning_trace: str = ""
+    full_output: str = ""
     # None = this player type has no token concept (e.g. a bot); LLM/agent players set real counts
     input_tokens: int | None = None
     output_tokens: int | None = None
@@ -36,11 +36,11 @@ class Player(ABC):
         remaining = max_length - len(title) - 2
         before = math.ceil(remaining / 2)
         after = remaining - before
-        return f'{"=" * before} {title} {"=" * after}'
+        return f"{'=' * before} {title} {'=' * after}"
 
     @staticmethod
     def _bottom_border(max_length: int = 30) -> str:
-        return '=' * max_length
+        return "=" * max_length
 
     def __init__(self, player_config: PlayerConfig, identifier: PlayerIdentifier) -> None:
         self.player_config = player_config
@@ -59,14 +59,14 @@ class Player(ABC):
         raise NotImplementedError
 
     def format_output(self, player_output: PlayerOutput) -> str:
-        selected = player_output.action.to_llm().string if player_output.action is not None else 'None'
+        selected = player_output.action.to_llm().string if player_output.action is not None else "None"
         parts = [
             Player._top_border(str(self)),
             self.format_llm_output(player_output),
-            f'Selected move: {selected}',
+            f"Selected move: {selected}",
             Player._bottom_border(),
         ]
-        return '\n'.join(parts)
+        return "\n".join(parts)
 
     def __str__(self) -> str:
         return self.player_config.to_string()

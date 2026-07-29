@@ -29,7 +29,7 @@ class LLMClient(ABC):
     def resolve_model(self, model_name: str) -> LLMModel:
         model = self._models.get(model_name, None)
         if model is None:
-            raise ValueError(f'Model {model_name} not found for provider {self.provider_key.value}')
+            raise ValueError(f"Model {model_name} not found for provider {self.provider_key.value}")
         return model
 
     def get_available_models(self) -> list[LLMModel]:

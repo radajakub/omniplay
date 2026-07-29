@@ -26,8 +26,8 @@ def _llm_builder(llm: LLM) -> Callable[[TurnBasedGame, PlayerConfig, PlayerIdent
 
 
 def register_builtin_players(registry: Registry, llm: LLM) -> None:
-    registry.register_player(PlayerSpec('human', HumanParams, lambda game, cfg, pid: HumanPlayer(cfg, pid)))
-    registry.register_player(PlayerSpec('random', RandomParams, lambda game, cfg, pid: RandomPlayer(cfg, pid)))
-    registry.register_player(PlayerSpec('mcts', MctsParams, lambda game, cfg, pid: MCTSPlayer(game, cfg, pid)))
-    registry.register_player(PlayerSpec('optimal', OptimalParams, lambda game, cfg, pid: OptimalPlayer(game, cfg, pid)))
-    registry.register_player(PlayerSpec('llm', LLMParams, _llm_builder(llm), tracker=LLMPlayerTracker()))
+    registry.register_player(PlayerSpec("human", HumanParams, lambda game, cfg, pid: HumanPlayer(cfg, pid)))
+    registry.register_player(PlayerSpec("random", RandomParams, lambda game, cfg, pid: RandomPlayer(cfg, pid)))
+    registry.register_player(PlayerSpec("mcts", MctsParams, lambda game, cfg, pid: MCTSPlayer(game, cfg, pid)))
+    registry.register_player(PlayerSpec("optimal", OptimalParams, lambda game, cfg, pid: OptimalPlayer(game, cfg, pid)))
+    registry.register_player(PlayerSpec("llm", LLMParams, _llm_builder(llm), tracker=LLMPlayerTracker()))

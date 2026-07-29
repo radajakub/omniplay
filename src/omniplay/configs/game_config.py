@@ -11,12 +11,12 @@ class GameConfig:
     params: GameParams
 
     def to_string(self) -> str:
-        return f'{self.key}:{self.params.to_string()}'
+        return f"{self.key}:{self.params.to_string()}"
 
     @property
     def path(self) -> str:
         suffix = self.params.path_suffix
-        return f'{self.key}_{suffix}' if suffix else self.key
+        return f"{self.key}_{suffix}" if suffix else self.key
 
     def __str__(self) -> str:
         return self.to_string()

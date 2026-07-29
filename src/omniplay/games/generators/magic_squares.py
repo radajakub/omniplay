@@ -19,7 +19,7 @@ class MagicSquare:
         sums.append(np.sum(self.square.diagonal()))
         sums.append(np.sum(np.fliplr(self.square).diagonal()))
         sums = np.array(sums)
-        assert np.all(sums == sums[0]), 'The square is not magic'
+        assert np.all(sums == sums[0]), "The square is not magic"
         return sums[0]
 
     def __call__(self, row: int, col: int) -> int:
@@ -47,11 +47,18 @@ class MagicSquare:
 class MagicSquareGenerator(InstanceGenerator[MagicSquare]):
     def __init__(self, sample: bool = False, magic_constant_add: int = 0) -> None:
         super().__init__(sample=sample)
-        self.lo_shu = MagicSquare(np.array([
-            [4, 9, 2],
-            [3, 5, 7],
-            [8, 1, 6],
-        ])) + magic_constant_add
+        self.lo_shu = (
+            MagicSquare(
+                np.array(
+                    [
+                        [4, 9, 2],
+                        [3, 5, 7],
+                        [8, 1, 6],
+                    ]
+                )
+            )
+            + magic_constant_add
+        )
         self.magic_constant_add = magic_constant_add
         self.all_squares = self._generate()
 

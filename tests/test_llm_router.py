@@ -28,7 +28,7 @@ class _StubClient(LLMClient):
     provider_key = Provider.OPENAI
 
     def __init__(self) -> None:
-        super().__init__([_StubModel('stub-model', 'stub-model-v1')], concurrency=2)
+        super().__init__([_StubModel("stub-model", "stub-model-v1")], concurrency=2)
         self.calls: list[tuple[str, LLMCallOptions]] = []
 
     @classmethod
@@ -45,8 +45,8 @@ class _StubClient(LLMClient):
             provider=self.provider_key,
             model_string=model.model_string,
             tokens=LLMTokens(input_tokens=5, output_tokens=7, reasoning_tokens=3),
-            items=[OutputText(['ok'])],
-            output_text='ok',
+            items=[OutputText(["ok"])],
+            output_text="ok",
         )
 
     async def embed(self, model_name, texts) -> EmbeddingResponse:
@@ -59,15 +59,15 @@ def test_self_disable_when_no_credentials():
     with pytest.raises(ValueError):
         asyncio.run(
             llm.generate(
-                ModelConfig(Provider.OPENAI, 'gpt-5.4'),
-                LLMMessage.system('s'),
-                [LLMMessage.user('u')],
+                ModelConfig(Provider.OPENAI, "gpt-5.4"),
+                LLMMessage.system("s"),
+                [LLMMessage.user("u")],
             )
         )
 
 
 def test_build_creates_configured_provider_only():
-    config = LLMConfig(openai=OpenAIProviderConfig(api_key='sk-test'))
+    config = LLMConfig(openai=OpenAIProviderConfig(api_key="sk-test"))
     llm = LLM(config)
     assert llm.available_providers == [Provider.OPENAI]
 
@@ -77,25 +77,25 @@ def test_routing_dispatches_on_provider_and_records_model_string():
     stub = _StubClient()
     llm._provider_map[Provider.OPENAI] = stub
 
-    mc = ModelConfig(Provider.OPENAI, 'stub-model', LLMCallOptions(reasoning_effort='high'))
-    resp = asyncio.run(llm.generate(mc, LLMMessage.system('s'), [LLMMessage.user('u')]))
+    mc = ModelConfig(Provider.OPENAI, "stub-model", LLMCallOptions(reasoning_effort="high"))
+    resp = asyncio.run(llm.generate(mc, LLMMessage.system("s"), [LLMMessage.user("u")]))
 
-    assert resp.model_string == 'stub-model-v1'
+    assert resp.model_string == "stub-model-v1"
     assert resp.tokens.reasoning_tokens == 3
-    assert stub.calls == [('stub-model', LLMCallOptions(reasoning_effort='high'))]
+    assert stub.calls == [("stub-model", LLMCallOptions(reasoning_effort="high"))]
 
 
 def test_resolve_unknown_model_raises():
     stub = _StubClient()
     with pytest.raises(ValueError):
-        stub.resolve_model('does-not-exist')
+        stub.resolve_model("does-not-exist")
 
 
 def test_cost_uses_routed_model():
     llm = LLM(LLMConfig())
     stub = _StubClient()
-    stub._models['stub-model'].input_cost = 1_000_000  # $1 per input token -> easy assertion
+    stub._models["stub-model"].input_cost = 1_000_000  # $1 per input token -> easy assertion
     llm._provider_map[Provider.OPENAI] = stub
     # cost = input_tokens / 1e6 * input_cost = 2 / 1e6 * 1e6 = 2.0
-    cost = llm.calculate_cost(ModelConfig(Provider.OPENAI, 'stub-model'), LLMTokens(input_tokens=2))
+    cost = llm.calculate_cost(ModelConfig(Provider.OPENAI, "stub-model"), LLMTokens(input_tokens=2))
     assert cost == pytest.approx(2.0)

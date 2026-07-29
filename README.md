@@ -139,9 +139,7 @@ class FirstMovePlayer(Player):
 
 
 op = OmniPlay()
-op.registry.register_player(
-    PlayerSpec("first", FirstMoveParams, lambda game, cfg, pid: FirstMovePlayer(cfg, pid))
-)
+op.registry.register_player(PlayerSpec("first", FirstMoveParams, lambda game, cfg, pid: FirstMovePlayer(cfg, pid)))
 # usable anywhere as the config string "first:"
 ```
 
@@ -169,9 +167,9 @@ from omniplay.games.spec import GameSpec
 op.registry.register_game(
     GameSpec(
         key="my_game",
-        params_cls=NoGameParams,      # or a custom GameParams subclass
+        params_cls=NoGameParams,  # or a custom GameParams subclass
         engine_factory=MyGameEngine,  # GameConfig -> TurnBasedEngine
-        solvable=False,               # True enables minimax optimality/regret analysis (small trees only)
+        solvable=False,  # True enables minimax optimality/regret analysis (small trees only)
     )
 )
 # usable anywhere as the config string "my_game:"
@@ -191,11 +189,11 @@ run continues where it left off.
 The complete experiment definitions from the paper are prepared under
 [`experiments/benchmarks/`](experiments/benchmarks/):
 
-| Experiment | File | Games |
-| --- | --- | --- |
-| Tic-tac-toe family | `ttt.json` | `tic_tac_toe`, `modified_tic_tac_toe`, `magic_square`, `story_magic_square` |
-| Nim family | `nim.json` | `nim`, `modified_nim`, `inverse_nim`, `story_nim` |
-| Connect Four | `connect_four.json` | `connect_four` |
+| Experiment         | File                | Games                                                                       |
+| ------------------ | ------------------- | --------------------------------------------------------------------------- |
+| Tic-tac-toe family | `ttt.json`          | `tic_tac_toe`, `modified_tic_tac_toe`, `magic_square`, `story_magic_square` |
+| Nim family         | `nim.json`          | `nim`, `modified_nim`, `inverse_nim`, `story_nim`                           |
+| Connect Four       | `connect_four.json` | `connect_four`                                                              |
 
 Each file declares the full sweep — the LLM players, the opponents (`random`, `mcts`, `optimal`), and
 the number of rounds — with per-item `enabled` toggles so you can narrow a run without editing the sweep.

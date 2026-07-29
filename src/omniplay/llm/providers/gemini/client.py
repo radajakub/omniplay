@@ -10,13 +10,13 @@ from omniplay.llm.concurrency import safe_call
 from omniplay.llm.llm_config import LLMConfig
 from omniplay.llm.message import LLMMessage
 from omniplay.llm.options import LLMCallOptions
-from omniplay.llm.providers.providers import Provider
 from omniplay.llm.providers.gemini.models import GeminiLLMModel, gemini_models
+from omniplay.llm.providers.providers import Provider
 from omniplay.llm.response import EmbeddingResponse, LLMResponse, OutputText, ReasoningTrace
 from omniplay.llm.tokens import LLMTokens
 
 _RETRY_ERRORS = (APIError,)
-_ROLE_MAP = {'user': 'user', 'assistant': 'model', 'system': 'user'}
+_ROLE_MAP = {"user": "user", "assistant": "model", "system": "user"}
 
 
 def _extract_reasoning(response: GenerateContentResponse) -> list[str]:
@@ -55,19 +55,14 @@ class GeminiLLMClient(LLMClient):
         params = model.extract_params(options)
         params.system_instruction = system.content
         if output_schema is not None:
-            params.response_mime_type = 'application/json'
+            params.response_mime_type = "application/json"
             params.response_schema = output_schema
 
-        contents = [
-            Content(role=_ROLE_MAP[message.role], parts=[Part(text=message.content)])
-            for message in messages
-        ]
+        contents = [Content(role=_ROLE_MAP[message.role], parts=[Part(text=message.content)]) for message in messages]
 
         response = await self._semaphore.run(
             lambda: safe_call(
-                lambda: self._client.models.generate_content(
-                    model=model.model_string, contents=contents, config=params
-                ),
+                lambda: self._client.models.generate_content(model=model.model_string, contents=contents, config=params),
                 retry_errors=_RETRY_ERRORS,
             )
         )
@@ -86,7 +81,7 @@ class GeminiLLMClient(LLMClient):
         )
 
         reasoning = _extract_reasoning(response)
-        output_text = response.text or ''
+        output_text = response.text or ""
 
         items: list[ReasoningTrace | OutputText] = []
         if reasoning:
@@ -96,4 +91,4 @@ class GeminiLLMClient(LLMClient):
         return LLMResponse(self.provider_key, model.model_string, tokens, items, output_text, output_schema)
 
     async def embed(self, model_name: str, texts: list[str]) -> EmbeddingResponse:
-        raise NotImplementedError('Gemini embeddings are not supported in this package')
+        raise NotImplementedError("Gemini embeddings are not supported in this package")

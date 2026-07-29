@@ -17,14 +17,14 @@ from omniplay.utils.text import extract_params
 
 @dataclass(frozen=True, eq=True)
 class RandomParams(PlayerParams):
-    distribution: str = 'uniform'
+    distribution: str = "uniform"
 
     @classmethod
     def from_string(cls, params_string: str) -> RandomParams:
-        return cls(extract_params(params_string).get('distribution', 'uniform'))
+        return cls(extract_params(params_string).get("distribution", "uniform"))
 
     def to_string(self) -> str:
-        return f'distribution={self.distribution}'
+        return f"distribution={self.distribution}"
 
     @property
     def path_suffix(self) -> str:
@@ -36,12 +36,12 @@ class RandomPlayer(Player):
         super().__init__(player_config, identifier)
         params = cast(RandomParams, player_config.params)
         self._probs: Callable[[list[InterfaceAction]], np.ndarray]
-        if params.distribution == 'uniform':
+        if params.distribution == "uniform":
             self._probs = self._uniform_probs
-        elif params.distribution == 'normal':
+        elif params.distribution == "normal":
             self._probs = self._normal_probs
         else:
-            raise ValueError(f'Invalid random distribution: {params.distribution}')
+            raise ValueError(f"Invalid random distribution: {params.distribution}")
 
     def initialize_policy(self, game: TurnBasedGame, prompt_adapter_template: PromptAdapter) -> None:
         pass
@@ -66,4 +66,4 @@ class RandomPlayer(Player):
         return PlayerOutput(action=legal_moves[index])
 
     def format_llm_output(self, player_output: PlayerOutput) -> str:
-        return ''
+        return ""

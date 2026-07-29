@@ -1,5 +1,6 @@
 """Phase 2 core tests: player-config parsing via the registry, the per-player tracker registry,
 and GameTracker round-trip. Uses an instance-scoped Registry (no globals)."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -19,11 +20,11 @@ from omniplay.trackers.player_tracker import PlayerTracker
 # --- stubs -----------------------------------------------------------------------------------
 @dataclass(frozen=True)
 class _StubParams(PlayerParams):
-    label: str = 'x'
+    label: str = "x"
 
     @classmethod
-    def from_string(cls, params_string: str) -> '_StubParams':
-        return cls(params_string or 'x')
+    def from_string(cls, params_string: str) -> "_StubParams":
+        return cls(params_string or "x")
 
     def to_string(self) -> str:
         return self.label
@@ -35,14 +36,14 @@ class _StubParams(PlayerParams):
 
 class _LLMTracker(PlayerTracker):
     def record(self, player_output: PlayerOutput) -> dict:
-        return {'reasoning_trace': player_output.reasoning_trace} if player_output.reasoning_trace else {}
+        return {"reasoning_trace": player_output.reasoning_trace} if player_output.reasoning_trace else {}
 
 
 class _StubLLMAction:
     def __init__(self, string: str) -> None:
         self._string = string
 
-    def to_llm(self) -> '_StubLLMAction':
+    def to_llm(self) -> "_StubLLMAction":
         return self
 
     @property
@@ -52,48 +53,47 @@ class _StubLLMAction:
 
 class _StubObservation:
     def __str__(self) -> str:
-        return 'OBS'
+        return "OBS"
 
 
 registry = Registry()
 # build is unused in these tests (they drive GameTracker directly), so a trivial builder is fine
-registry.register_player(PlayerSpec('stub', _StubParams, lambda game, cfg, pid: None))
-registry.register_player(PlayerSpec('ai', _StubParams, lambda game, cfg, pid: None, tracker=_LLMTracker()))
+registry.register_player(PlayerSpec("stub", _StubParams, lambda game, cfg, pid: None))
+registry.register_player(PlayerSpec("ai", _StubParams, lambda game, cfg, pid: None, tracker=_LLMTracker()))
 
 
 # --- tests -----------------------------------------------------------------------------------
 def test_player_config_string_round_trip():
-    cfg = PlayerConfig('stub', _StubParams('a'))
-    assert cfg.to_string() == 'stub:a'
-    assert registry.player_config('stub:a') == cfg
-    assert cfg.path == 'stub_a'
+    cfg = PlayerConfig("stub", _StubParams("a"))
+    assert cfg.to_string() == "stub:a"
+    assert registry.player_config("stub:a") == cfg
+    assert cfg.path == "stub_a"
     # hash is a stable 12-char hex digest of the serialization, distinct per config
-    assert cfg.hash == PlayerConfig('stub', _StubParams('a')).hash
-    assert len(cfg.hash) == 12 and all(c in '0123456789abcdef' for c in cfg.hash)
-    assert cfg.hash != PlayerConfig('stub', _StubParams('b')).hash
+    assert cfg.hash == PlayerConfig("stub", _StubParams("a")).hash
+    assert len(cfg.hash) == 12 and all(c in "0123456789abcdef" for c in cfg.hash)
+    assert cfg.hash != PlayerConfig("stub", _StubParams("b")).hash
 
 
 def test_llm_tracker_records_tokens_and_data():
-    i = PlayerConfig('ai', _StubParams('i'))
-    o = PlayerConfig('stub', _StubParams('o'))
+    i = PlayerConfig("ai", _StubParams("i"))
+    o = PlayerConfig("stub", _StubParams("o"))
     tracker = GameTracker(1, i, o, {})
 
-    llm_out = PlayerOutput(action=_StubLLMAction('<a1>'), input_tokens=11, output_tokens=22,
-                           reasoning_tokens=7, reasoning_trace='because')
-    tracker.add_move(i, _StubObservation(), llm_out, 'STATE', registry)
+    llm_out = PlayerOutput(action=_StubLLMAction("<a1>"), input_tokens=11, output_tokens=22, reasoning_tokens=7, reasoning_trace="because")
+    tracker.add_move(i, _StubObservation(), llm_out, "STATE", registry)
 
     step = tracker.steps[-1]
     assert (step.input_tokens, step.output_tokens, step.reasoning_tokens) == (11, 22, 7)
-    assert step.data == {'reasoning_trace': 'because'}
-    assert step.move == '<a1>'
+    assert step.data == {"reasoning_trace": "because"}
+    assert step.move == "<a1>"
 
 
 def test_tokens_recorded_generically_but_noop_tracker_adds_no_data():
-    o = PlayerConfig('stub', _StubParams('o'))  # no tracker registered for 'stub'
-    tracker = GameTracker(1, PlayerConfig('ai', _StubParams('i')), o, {})
+    o = PlayerConfig("stub", _StubParams("o"))  # no tracker registered for 'stub'
+    tracker = GameTracker(1, PlayerConfig("ai", _StubParams("i")), o, {})
 
-    out = PlayerOutput(action=_StubLLMAction('<b2>'), input_tokens=5, output_tokens=9, reasoning_tokens=3)
-    tracker.add_move(o, _StubObservation(), out, 'STATE', registry)
+    out = PlayerOutput(action=_StubLLMAction("<b2>"), input_tokens=5, output_tokens=9, reasoning_tokens=3)
+    tracker.add_move(o, _StubObservation(), out, "STATE", registry)
 
     step = tracker.steps[-1]
     assert (step.input_tokens, step.output_tokens, step.reasoning_tokens) == (5, 9, 3)
@@ -101,26 +101,26 @@ def test_tokens_recorded_generically_but_noop_tracker_adds_no_data():
 
 
 def test_simple_bot_step_is_minimal():
-    o = PlayerConfig('stub', _StubParams('o'))
-    tracker = GameTracker(1, PlayerConfig('ai', _StubParams('i')), o, {})
-    tracker.add_move(o, _StubObservation(), PlayerOutput(action=_StubLLMAction('<b2>')), 'STATE', registry)
-    assert set(tracker.steps[-1].to_dict()) == {'seq', 'player_name', 'player_hash', 'serialized_state', 'observation', 'move'}
+    o = PlayerConfig("stub", _StubParams("o"))
+    tracker = GameTracker(1, PlayerConfig("ai", _StubParams("i")), o, {})
+    tracker.add_move(o, _StubObservation(), PlayerOutput(action=_StubLLMAction("<b2>")), "STATE", registry)
+    assert set(tracker.steps[-1].to_dict()) == {"seq", "player_name", "player_hash", "serialized_state", "observation", "move"}
 
 
 def test_fail_move_records_failure_reason():
-    i = PlayerConfig('ai', _StubParams('i'))
-    tracker = GameTracker(1, i, PlayerConfig('stub', _StubParams('o')), {})
-    tracker.add_move(i, _StubObservation(), PlayerOutput(action=None, failure_reason='illegal'), 'STATE', registry)
-    assert tracker.steps[-1].move == 'FAIL: illegal'
+    i = PlayerConfig("ai", _StubParams("i"))
+    tracker = GameTracker(1, i, PlayerConfig("stub", _StubParams("o")), {})
+    tracker.add_move(i, _StubObservation(), PlayerOutput(action=None, failure_reason="illegal"), "STATE", registry)
+    assert tracker.steps[-1].move == "FAIL: illegal"
 
 
 def test_game_tracker_round_trip():
-    i = PlayerConfig('ai', _StubParams('i'))
-    o = PlayerConfig('stub', _StubParams('o'))
-    tracker = GameTracker(3, i, o, {'seed': 1}, other_params={'k': 'v'})
+    i = PlayerConfig("ai", _StubParams("i"))
+    o = PlayerConfig("stub", _StubParams("o"))
+    tracker = GameTracker(3, i, o, {"seed": 1}, other_params={"k": "v"})
 
-    tracker.add_move(i, _StubObservation(), PlayerOutput(action=_StubLLMAction('<a>'), input_tokens=4, output_tokens=6), 'S1', registry)
-    tracker.add_move(o, _StubObservation(), PlayerOutput(action=_StubLLMAction('<b>')), 'S2', registry)
+    tracker.add_move(i, _StubObservation(), PlayerOutput(action=_StubLLMAction("<a>"), input_tokens=4, output_tokens=6), "S1", registry)
+    tracker.add_move(o, _StubObservation(), PlayerOutput(action=_StubLLMAction("<b>")), "S2", registry)
     tracker.end_game(GameResults.WIN, _StubObservation())
 
     data = tracker.to_dict()
@@ -136,4 +136,4 @@ def test_game_tracker_round_trip():
 
 def test_player_config_requires_registered_key():
     with pytest.raises(ValueError):
-        registry.player_config('unregistered:foo')
+        registry.player_config("unregistered:foo")

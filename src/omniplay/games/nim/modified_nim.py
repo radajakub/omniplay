@@ -8,29 +8,29 @@ from omniplay.core.game import TurnBasedGame
 from omniplay.core.interface import InterfaceTransformer
 from omniplay.core.prompt_adapter import PromptAdapter
 from omniplay.games.nim.nim import NimAction, NimObservation
-from omniplay.visualization.piles import PilePrinter
 from omniplay.utils.text import order_suffix
+from omniplay.visualization.piles import PilePrinter
 
 
 class ModifiedNimGame(TurnBasedGame):
     def __init__(self) -> None:
-        super().__init__(game_type='modified_nim', game_name='nim')
+        super().__init__(game_type="modified_nim", game_name="nim")
 
 
 class ModifiedNimTransformer(InterfaceTransformer):
-    printer = PilePrinter(column_label='lamp')
+    printer = PilePrinter(column_label="lamp")
 
     def _inner_llm_action(self, action: NimAction) -> str:
-        return f'lamp:{action.pile + 1}, decrease:{action.take}'
+        return f"lamp:{action.pile + 1}, decrease:{action.take}"
 
     def display_action(self, action: NimAction) -> str:
-        return f'lamp:{action.pile + 1}, decrease:{action.take}'
+        return f"lamp:{action.pile + 1}, decrease:{action.take}"
 
     def _inner_llm_state(self, observation: NimObservation) -> str:
-        return ' '.join(str(pile) for pile in observation.state)
+        return " ".join(str(pile) for pile in observation.state)
 
     def _inner_llm_partial_states(self, observation: NimObservation) -> list[str]:
-        return [f'the {i}{order_suffix(i)} lamp has brightness level {pile}' for i, pile in enumerate(observation.state, start=1)]
+        return [f"the {i}{order_suffix(i)} lamp has brightness level {pile}" for i, pile in enumerate(observation.state, start=1)]
 
     def _inner_llm_positions(self, observation: NimObservation) -> tuple[list[str], list[str]]:
         return [], []
@@ -64,7 +64,7 @@ class ModifiedNimPromptAdapter(PromptAdapter):
         self.head_prompt = self.head_prompt_template
 
     def action_format(self) -> str:
-        return '<lamp:x, decrease:y>, e.g., <lamp:1, decrease:1>, <lamp:4, decrease:7>'
+        return "<lamp:x, decrease:y>, e.g., <lamp:1, decrease:1>, <lamp:4, decrease:7>"
 
     def restart_prompt(self) -> None:
         pass
@@ -72,8 +72,7 @@ class ModifiedNimPromptAdapter(PromptAdapter):
 
 class ModifiedNimEngine(TurnBasedEngine):
     def __init__(self, game_config: GameConfig) -> None:
-        super().__init__(game_config, ModifiedNimGame(), ModifiedNimTransformer(),
-                         ModifiedNimPromptAdapter(), NimAction, NimObservation)
+        super().__init__(game_config, ModifiedNimGame(), ModifiedNimTransformer(), ModifiedNimPromptAdapter(), NimAction, NimObservation)
 
     def reset(self) -> None:
         self.game.reset()

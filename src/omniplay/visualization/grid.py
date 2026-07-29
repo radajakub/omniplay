@@ -5,14 +5,14 @@ from omniplay.utils.text import number_to_char_upper
 
 
 class GridAxisLabel(ExtendedEnum):
-    NUMBERS = 'numbers'
-    LETTERS = 'letters'
-    NONE = 'none'
+    NUMBERS = "numbers"
+    LETTERS = "letters"
+    NONE = "none"
 
 
 class GridAxisDirection(ExtendedEnum):
-    FORWARD = 'forward'
-    REVERSED = 'reversed'
+    FORWARD = "forward"
+    REVERSED = "reversed"
 
 
 def grid_to_positions(grid: list[list[str]], i_symbol: str, o_symbol: str, label: Callable[[int, int], str]) -> tuple[list[str], list[str]]:
@@ -25,7 +25,13 @@ def grid_to_positions(grid: list[list[str]], i_symbol: str, o_symbol: str, label
 
 
 class GridPrinter:
-    def __init__(self, row_header: GridAxisLabel = GridAxisLabel.NONE, row_direction: GridAxisDirection = GridAxisDirection.FORWARD, col_header: GridAxisLabel = GridAxisLabel.NONE, col_direction: GridAxisDirection = GridAxisDirection.FORWARD) -> None:
+    def __init__(
+        self,
+        row_header: GridAxisLabel = GridAxisLabel.NONE,
+        row_direction: GridAxisDirection = GridAxisDirection.FORWARD,
+        col_header: GridAxisLabel = GridAxisLabel.NONE,
+        col_direction: GridAxisDirection = GridAxisDirection.FORWARD,
+    ) -> None:
         self.row_header = row_header
         self.row_direction = row_direction
         self.col_header = col_header
@@ -68,25 +74,25 @@ class GridPrinter:
                 cell_width = max(cell_width, len(cell))
 
         if col_labels:
-            lines.append('   ' + ' '.join(f' {label:^{cell_width}} ' for label in col_labels))
+            lines.append("   " + " ".join(f" {label:^{cell_width}} " for label in col_labels))
 
-        border_segment = '-' * (cell_width + 2)
-        top_border = '  +' + '+'.join(border_segment for _ in range(num_cols)) + '+'
+        border_segment = "-" * (cell_width + 2)
+        top_border = "  +" + "+".join(border_segment for _ in range(num_cols)) + "+"
         lines.append(top_border)
 
         for row_idx, row in enumerate(grid):
             if row_labels and row_idx < len(row_labels):
-                row_str = f'{row_labels[row_idx]} |' + '|'.join(f' {cell:^{cell_width}} ' for cell in row) + '|' + f' {row_labels[row_idx]}'
+                row_str = f"{row_labels[row_idx]} |" + "|".join(f" {cell:^{cell_width}} " for cell in row) + "|" + f" {row_labels[row_idx]}"
             else:
-                row_str = '  |' + '|'.join(f' {cell:^{cell_width}} ' for cell in row) + '|'
+                row_str = "  |" + "|".join(f" {cell:^{cell_width}} " for cell in row) + "|"
             lines.append(row_str)
 
             if row_idx < num_rows - 1:
-                lines.append('  +' + '+'.join(border_segment for _ in range(num_cols)) + '+')
+                lines.append("  +" + "+".join(border_segment for _ in range(num_cols)) + "+")
 
-        lines.append('  +' + '+'.join(border_segment for _ in range(num_cols)) + '+')
+        lines.append("  +" + "+".join(border_segment for _ in range(num_cols)) + "+")
 
         if col_labels:
-            lines.append('   ' + ' '.join(f' {label:^{cell_width}} ' for label in col_labels))
+            lines.append("   " + " ".join(f" {label:^{cell_width}} " for label in col_labels))
 
-        return '\n'.join(lines)
+        return "\n".join(lines)

@@ -1,6 +1,7 @@
 """Phase 6a: the in-memory statistics layer. The CI primitives behave (Wilson / SEM / t / bootstrap),
 and `BenchmarkAnalysis` composes the same benchmark metrics with confidence intervals over a finished
 (offline, bot-only) benchmark run."""
+
 from __future__ import annotations
 
 import asyncio
@@ -19,10 +20,16 @@ op = OmniPlay(LLMConfig())
 registry = op.registry
 
 _FIELD_METRICS = {
-    MetricName.WIN_RATE, MetricName.DRAW_RATE, MetricName.LOSS_RATE, MetricName.FAIL_RATE,
-    MetricName.SCORE, MetricName.MOVES_PER_GAME,
-    MetricName.INPUT_TOKENS_PER_GAME, MetricName.OUTPUT_TOKENS_PER_GAME,
-    MetricName.INPUT_TOKENS_PER_MOVE, MetricName.OUTPUT_TOKENS_PER_MOVE,
+    MetricName.WIN_RATE,
+    MetricName.DRAW_RATE,
+    MetricName.LOSS_RATE,
+    MetricName.FAIL_RATE,
+    MetricName.SCORE,
+    MetricName.MOVES_PER_GAME,
+    MetricName.INPUT_TOKENS_PER_GAME,
+    MetricName.OUTPUT_TOKENS_PER_GAME,
+    MetricName.INPUT_TOKENS_PER_MOVE,
+    MetricName.OUTPUT_TOKENS_PER_MOVE,
 }
 
 
@@ -62,7 +69,7 @@ def test_bundle_families_carry_the_right_intervals():
 # --- end-to-end over a finished benchmark ----------------------------------------------------
 def _run_benchmark(tmp_path, monkeypatch, num_games=4):
     monkeypatch.chdir(tmp_path)
-    benchmark = Benchmark('exp', op, ['tic_tac_toe:'], ['random:distribution=uniform'], ['random:distribution=normal'], num_games)
+    benchmark = Benchmark("exp", op, ["tic_tac_toe:"], ["random:distribution=uniform"], ["random:distribution=normal"], num_games)
     return asyncio.run(benchmark.run(sync=True, concurrency=1))
 
 
@@ -71,9 +78,9 @@ def test_benchmark_analysis_composes_all_metrics(tmp_path, monkeypatch):
     analysis = BenchmarkAnalysis(results)
 
     stats = analysis.matchup(
-        registry.game_config('tic_tac_toe:'),
-        registry.player_config('random:distribution=uniform'),
-        registry.player_config('random:distribution=normal'),
+        registry.game_config("tic_tac_toe:"),
+        registry.player_config("random:distribution=uniform"),
+        registry.player_config("random:distribution=normal"),
     )
 
     combined = stats.metrics.combined
@@ -116,13 +123,13 @@ def test_analyze_returns_one_matchup_and_serializes(tmp_path, monkeypatch):
 # --- quality metrics via minimax replay (Phase 6b) -------------------------------------------
 def test_quality_metrics_for_optimal_player(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)  # OptimalPlayer solves + caches minimax under ./cache
-    benchmark = Benchmark('exp', op, ['tic_tac_toe:'], ['optimal:stochastic=True'], ['random:distribution=uniform'], 2)
+    benchmark = Benchmark("exp", op, ["tic_tac_toe:"], ["optimal:stochastic=True"], ["random:distribution=uniform"], 2)
     results = asyncio.run(benchmark.run(sync=True, concurrency=1))
 
     stats = BenchmarkAnalysis(results, op.registry).matchup(
-        registry.game_config('tic_tac_toe:'),
-        registry.player_config('optimal:stochastic=True'),
-        registry.player_config('random:distribution=uniform'),
+        registry.game_config("tic_tac_toe:"),
+        registry.player_config("optimal:stochastic=True"),
+        registry.player_config("random:distribution=uniform"),
     )
     combined = stats.metrics.combined
 
@@ -139,21 +146,21 @@ def test_quality_gated_on_registry_and_solvability(tmp_path, monkeypatch):
 
     # no registry -> no replay -> only the field-based metrics
     without_registry = BenchmarkAnalysis(results).matchup(
-        registry.game_config('tic_tac_toe:'),
-        registry.player_config('random:distribution=uniform'),
-        registry.player_config('random:distribution=normal'),
+        registry.game_config("tic_tac_toe:"),
+        registry.player_config("random:distribution=uniform"),
+        registry.player_config("random:distribution=normal"),
     )
     assert set(without_registry.metrics.combined.metrics.keys()) == _FIELD_METRICS
 
     # with a registry, a solvable game gains the quality metrics
     with_registry = BenchmarkAnalysis(results, op.registry).matchup(
-        registry.game_config('tic_tac_toe:'),
-        registry.player_config('random:distribution=uniform'),
-        registry.player_config('random:distribution=normal'),
+        registry.game_config("tic_tac_toe:"),
+        registry.player_config("random:distribution=uniform"),
+        registry.player_config("random:distribution=normal"),
     )
     assert MetricName.OPTIMALITY_RATE in with_registry.metrics.combined.metrics
     assert MetricName.REGRET in with_registry.metrics.combined.metrics
 
     # solvability is a registry lookup: connect_four is not solvable
-    assert registry.solvable('tic_tac_toe') is True
-    assert registry.solvable('connect_four') is False
+    assert registry.solvable("tic_tac_toe") is True
+    assert registry.solvable("connect_four") is False

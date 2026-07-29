@@ -10,6 +10,7 @@ Examples:
         --players llm:actions:text:openai:gpt-5.4:reasoning_effort=high --opponents optimal:stochastic=True \\
         --num-games 100 --out commercial_ttt.tar.gz
 """
+
 from __future__ import annotations
 
 import argparse
@@ -24,9 +25,9 @@ from _website_export import build_archive  # noqa: E402
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     add_source_args(parser)
-    parser.add_argument('--out', required=True, help='output .tar.gz path')
-    parser.add_argument('--confidence', type=float, default=0.95, help='confidence level (default 0.95)')
-    parser.add_argument('--include-fails', action='store_true', help='fold the player\'s own failed games into loss rate')
+    parser.add_argument("--out", required=True, help="output .tar.gz path")
+    parser.add_argument("--confidence", type=float, default=0.95, help="confidence level (default 0.95)")
+    parser.add_argument("--include-fails", action="store_true", help="fold the player's own failed games into loss rate")
     args = parser.parse_args()
 
     op = build_op()
@@ -34,8 +35,8 @@ def main() -> None:
     # the archive wrapper dir (stripped by the website); use the experiment name
     counts = build_archive(op, benchmark, args.out, benchmark.experiment, confidence=args.confidence, include_fails=args.include_fails)
 
-    print(f'wrote {args.out}: {counts["matchups"]} matchups, {counts["games"]} games, {counts["game_stats"]} game-stat files')
+    print(f"wrote {args.out}: {counts['matchups']} matchups, {counts['games']} games, {counts['game_stats']} game-stat files")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

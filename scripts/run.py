@@ -6,6 +6,7 @@ Examples:
     uv run python scripts/run.py --name smoke --games tic_tac_toe: --players random:distribution=uniform \\
         --opponents optimal:stochastic=True --num-games 10 --concurrency 4
 """
+
 from __future__ import annotations
 
 import argparse
@@ -22,8 +23,8 @@ from omniplay.callbacks.benchmark_callbacks import console_benchmark_callbacks  
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     add_source_args(parser)
-    parser.add_argument('--sync', action='store_true', help='run matchups sequentially instead of concurrently')
-    parser.add_argument('--concurrency', type=int, help='max concurrent rounds per matchup (default: all missing)')
+    parser.add_argument("--sync", action="store_true", help="run matchups sequentially instead of concurrently")
+    parser.add_argument("--concurrency", type=int, help="max concurrent rounds per matchup (default: all missing)")
     args = parser.parse_args()
 
     op = build_op()
@@ -32,8 +33,8 @@ def main() -> None:
     results = asyncio.run(benchmark.run(sync=args.sync, concurrency=args.concurrency, benchmark_callbacks=console_benchmark_callbacks()))
 
     complete = sum(1 for tracker in results.trackers if tracker.is_complete())
-    print(f'\ndone: {complete}/{len(results.trackers)} matchups complete under results/benchmarks/{benchmark.experiment}/')
+    print(f"\ndone: {complete}/{len(results.trackers)} matchups complete under results/benchmarks/{benchmark.experiment}/")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

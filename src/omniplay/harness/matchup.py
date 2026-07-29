@@ -38,8 +38,8 @@ async def _play_round(
     benchmark_callbacks.on_round_start(matchup.game, matchup.i, matchup.o, game_round)
 
     engine = op.registry.build_engine(matchup.game)
-    player_i = op.registry.build_player(engine.game, matchup.i, 'i')
-    player_o = op.registry.build_player(engine.game, matchup.o, 'o')
+    player_i = op.registry.build_player(engine.game, matchup.i, "i")
+    player_o = op.registry.build_player(engine.game, matchup.o, "o")
 
     player_pair = order_players_for_game(player_i, player_o, game_round, matchup.num_games)
     game_tracker = await engine.play(player_pair, game_callbacks=game_callbacks, game_round=game_round)
@@ -59,12 +59,18 @@ async def run_matchup(
     max_concurrent: int | None = None,
 ) -> ResultTracker:
     benchmark_callbacks = benchmark_callbacks if benchmark_callbacks is not None else BenchmarkCallbacks()
-    experiment = experiment if experiment is not None else f'run_{uuid.uuid4().hex}'
+    experiment = experiment if experiment is not None else f"run_{uuid.uuid4().hex}"
     path_builder = path_builder if path_builder is not None else BenchmarkPathBuilder()
 
     result_tracker = ResultTracker.new(
-        experiment, matchup.i, matchup.o, matchup.game, matchup.num_games, op.registry,
-        path_builder=path_builder, save_on_record=save_on_record,
+        experiment,
+        matchup.i,
+        matchup.o,
+        matchup.game,
+        matchup.num_games,
+        op.registry,
+        path_builder=path_builder,
+        save_on_record=save_on_record,
     )
     result_tracker.load_if_exists()
 
@@ -96,6 +102,9 @@ async def single_game(
     benchmark_callbacks: BenchmarkCallbacks | None = None,
 ) -> ResultTracker:
     return await run_matchup(
-        op, Matchup(game_config, i_config, o_config, 1),
-        game_callbacks=game_callbacks, benchmark_callbacks=benchmark_callbacks, save_on_record=False,
+        op,
+        Matchup(game_config, i_config, o_config, 1),
+        game_callbacks=game_callbacks,
+        benchmark_callbacks=benchmark_callbacks,
+        save_on_record=False,
     )

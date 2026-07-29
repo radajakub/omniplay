@@ -5,13 +5,13 @@ import random
 from collections.abc import Awaitable, Callable
 from typing import TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class ProviderSemaphore:
     def __init__(self, concurrency: int = 10) -> None:
         if concurrency < 1:
-            raise ValueError('Concurrency must be at least 1')
+            raise ValueError("Concurrency must be at least 1")
         self._concurrency = concurrency
         self._semaphore = asyncio.Semaphore(concurrency)
 
@@ -23,7 +23,7 @@ class ProviderSemaphore:
         if concurrency is None:
             return
         if concurrency < 1:
-            raise ValueError('Concurrency must be at least 1')
+            raise ValueError("Concurrency must be at least 1")
 
         self._concurrency = concurrency
         # in-flight tasks keep the old semaphore; new acquisitions use the new limit
@@ -47,6 +47,6 @@ async def safe_call(
         except retry_errors:
             if attempt == retries - 1:
                 raise
-            delay = min(delay_base * (2 ** attempt), delay_max) * random.uniform(0.7, 1.2)
+            delay = min(delay_base * (2**attempt), delay_max) * random.uniform(0.7, 1.2)
             await asyncio.sleep(delay)
-    raise RuntimeError('unreachable: safe_call exhausted retries without returning or raising')
+    raise RuntimeError("unreachable: safe_call exhausted retries without returning or raising")

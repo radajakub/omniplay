@@ -23,14 +23,14 @@ class Registry:
     def resolve_game(self, key: str) -> GameSpec:
         spec = self._games.get(key)
         if spec is None:
-            raise ValueError(f'No game registered for key {key!r}; registered: {self.game_keys()}')
+            raise ValueError(f"No game registered for key {key!r}; registered: {self.game_keys()}")
         return spec
 
     def game_keys(self) -> list[str]:
         return sorted(self._games)
 
     def game_config(self, config_string: str) -> GameConfig:
-        key, _, params_string = config_string.partition(':')
+        key, _, params_string = config_string.partition(":")
         return GameConfig(key, self.resolve_game(key).params_cls.from_string(params_string))
 
     def build_engine(self, game_config: GameConfig) -> TurnBasedEngine:
@@ -48,14 +48,14 @@ class Registry:
     def resolve_player(self, key: str) -> PlayerSpec:
         spec = self._players.get(key)
         if spec is None:
-            raise ValueError(f'No player registered for key {key!r}; registered: {self.player_keys()}')
+            raise ValueError(f"No player registered for key {key!r}; registered: {self.player_keys()}")
         return spec
 
     def player_keys(self) -> list[str]:
         return sorted(self._players)
 
     def player_config(self, config_string: str) -> PlayerConfig:
-        key, _, params_string = config_string.partition(':')
+        key, _, params_string = config_string.partition(":")
         return PlayerConfig(key, self.resolve_player(key).params_cls.from_string(params_string))
 
     def build_player(self, game: TurnBasedGame, player_config: PlayerConfig, identifier: PlayerIdentifier) -> Player:

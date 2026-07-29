@@ -5,7 +5,6 @@ from dataclasses import dataclass
 
 from omniplay.configs.game_config import GameConfig
 from omniplay.configs.game_params import GameParams
-
 from omniplay.core.engine import TurnBasedEngine
 
 

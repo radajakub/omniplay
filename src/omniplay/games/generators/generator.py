@@ -5,7 +5,7 @@ from typing import Generic, TypeVar
 
 import numpy as np
 
-GameInstanceT = TypeVar('GameInstanceT')
+GameInstanceT = TypeVar("GameInstanceT")
 
 
 class InstanceGenerator(Generic[GameInstanceT], ABC):

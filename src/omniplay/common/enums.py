@@ -4,8 +4,8 @@ from omniplay.utils.enums import ExtendedEnum
 
 
 class PlayerOrder(ExtendedEnum):
-    FIRST = 'first'
-    SECOND = 'second'
+    FIRST = "first"
+    SECOND = "second"
 
     @staticmethod
     def from_int(player: int) -> PlayerOrder:
@@ -13,20 +13,20 @@ class PlayerOrder(ExtendedEnum):
             return PlayerOrder.FIRST
         elif player == 1:
             return PlayerOrder.SECOND
-        raise ValueError('Player has to be either 0 or 1')
+        raise ValueError("Player has to be either 0 or 1")
 
     def is_first(self) -> bool:
         return self == PlayerOrder.FIRST
 
 
 class ObservationType(ExtendedEnum):
-    ACTIONS = 'actions'
-    STATE = 'state'
+    ACTIONS = "actions"
+    STATE = "state"
 
 
 class OutputStrategies(ExtendedEnum):
-    TEXT = 'text'
-    STRUCTURED = 'structured'
+    TEXT = "text"
+    STRUCTURED = "structured"
 
 
 class GameResults(ExtendedEnum):
@@ -56,18 +56,18 @@ class GameResults(ExtendedEnum):
 
     def to_prompt(self) -> str:
         return {
-            GameResults.WIN: 'WON',
-            GameResults.LOSS: 'LOST',
-            GameResults.DRAW: 'DRAW',
-            GameResults.MY_FAIL: 'LOST (failed to produce a valid move)',
-            GameResults.OPPONENT_FAIL: 'WON (opponent failed to produce a valid move)',
+            GameResults.WIN: "WON",
+            GameResults.LOSS: "LOST",
+            GameResults.DRAW: "DRAW",
+            GameResults.MY_FAIL: "LOST (failed to produce a valid move)",
+            GameResults.OPPONENT_FAIL: "WON (opponent failed to produce a valid move)",
         }[self]
 
 
 class StateClass(ExtendedEnum):
-    DONT_CARE = 'dont_care'  # all legal moves optimal AND state value > LOSS — forced non-losing
-    LOST = 'lost'            # all legal moves optimal AND state value == LOSS — already lost
-    DECISION = 'decision'    # optimal set is a strict subset of legal moves — a real choice exists
+    DONT_CARE = "dont_care"  # all legal moves optimal AND state value > LOSS — forced non-losing
+    LOST = "lost"  # all legal moves optimal AND state value == LOSS — already lost
+    DECISION = "decision"  # optimal set is a strict subset of legal moves — a real choice exists
 
     @property
     def is_forced(self) -> bool:
@@ -75,22 +75,22 @@ class StateClass(ExtendedEnum):
 
 
 class CIFamily(ExtendedEnum):
-    RATIO = 'ratio'  # a proportion in [0, 1] -> Wilson interval
-    MEAN = 'mean'    # a real-valued mean -> SEM / t / bootstrap intervals
+    RATIO = "ratio"  # a proportion in [0, 1] -> Wilson interval
+    MEAN = "mean"  # a real-valued mean -> SEM / t / bootstrap intervals
 
 
 class MetricName(ExtendedEnum):
-    WIN_RATE = 'win_rate'
-    DRAW_RATE = 'draw_rate'
-    LOSS_RATE = 'loss_rate'
-    FAIL_RATE = 'fail_rate'
-    SCORE = 'score'
-    MOVES_PER_GAME = 'moves_per_game'
-    INPUT_TOKENS_PER_GAME = 'input_tokens_per_game'
-    OUTPUT_TOKENS_PER_GAME = 'output_tokens_per_game'
-    INPUT_TOKENS_PER_MOVE = 'input_tokens_per_move'
-    OUTPUT_TOKENS_PER_MOVE = 'output_tokens_per_move'
+    WIN_RATE = "win_rate"
+    DRAW_RATE = "draw_rate"
+    LOSS_RATE = "loss_rate"
+    FAIL_RATE = "fail_rate"
+    SCORE = "score"
+    MOVES_PER_GAME = "moves_per_game"
+    INPUT_TOKENS_PER_GAME = "input_tokens_per_game"
+    OUTPUT_TOKENS_PER_GAME = "output_tokens_per_game"
+    INPUT_TOKENS_PER_MOVE = "input_tokens_per_move"
+    OUTPUT_TOKENS_PER_MOVE = "output_tokens_per_move"
     # produced only for solvable games via replay (Phase 6b)
-    OPTIMALITY_RATE = 'optimality_rate'
-    OPTIMALITY_RATE_NON_TRIVIAL = 'optimality_rate_non_trivial'
-    REGRET = 'regret'
+    OPTIMALITY_RATE = "optimality_rate"
+    OPTIMALITY_RATE_NON_TRIVIAL = "optimality_rate_non_trivial"
+    REGRET = "regret"

@@ -18,14 +18,23 @@ class NimInstance:
         return NimInstance([self.max_pile_size - pile for pile in self.pile_sizes], self.max_pile_size)
 
     def __str__(self) -> str:
-        return f'NimInstance(pile_sizes={self.pile_sizes})'
+        return f"NimInstance(pile_sizes={self.pile_sizes})"
 
     def __repr__(self) -> str:
         return self.__str__()
 
 
 class NimGenerator(InstanceGenerator[NimInstance]):
-    def __init__(self, inverse: bool = False, sample: bool = False, num_piles: int = 4, max_pile_size: int = 8, pile_sum: int = 16, nim_start: Literal['winning', 'losing'] = 'winning', allow_zero: bool = True) -> None:
+    def __init__(
+        self,
+        inverse: bool = False,
+        sample: bool = False,
+        num_piles: int = 4,
+        max_pile_size: int = 8,
+        pile_sum: int = 16,
+        nim_start: Literal["winning", "losing"] = "winning",
+        allow_zero: bool = True,
+    ) -> None:
         super().__init__(sample=sample)
         self.default = NimInstance([1, 3, 5, 7], max_pile_size)
 
@@ -53,9 +62,9 @@ class NimGenerator(InstanceGenerator[NimInstance]):
 
             if len(current_list) == self.num_piles:
                 if current_sum == self.pile_sum:
-                    if self.nim_start == 'winning' and self._is_winning(current_list):
+                    if self.nim_start == "winning" and self._is_winning(current_list):
                         yield tuple(current_list)
-                    elif self.nim_start == 'losing' and not self._is_winning(current_list):
+                    elif self.nim_start == "losing" and not self._is_winning(current_list):
                         yield tuple(current_list)
                 continue
 

@@ -12,7 +12,7 @@ class OpenSpielAction:
         self.string = string
 
     def __str__(self) -> str:
-        return f'OSAction[{self.number}]: {self.string}'
+        return f"OSAction[{self.number}]: {self.string}"
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -26,7 +26,7 @@ class OpenSpielObservation:
         self.player = player
 
     def __str__(self) -> str:
-        return f'OSObservation:\n{self.state}\nI: {self.i_actions}\nO: {self.o_actions}'
+        return f"OSObservation:\n{self.state}\nI: {self.i_actions}\nO: {self.o_actions}"
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -62,10 +62,8 @@ class TurnBasedState:
     def action_histories(state: sp.State, player: int) -> tuple[list[OpenSpielAction], list[OpenSpielAction]]:
         i, o = player, 1 - player
         histories = state.history()
-        i_history = [TurnBasedState._to_openspiel_action(state, i, h)
-                     for index, h in enumerate(histories) if index % 2 == i]
-        o_history = [TurnBasedState._to_openspiel_action(state, o, h)
-                     for index, h in enumerate(histories) if index % 2 == o]
+        i_history = [TurnBasedState._to_openspiel_action(state, i, h) for index, h in enumerate(histories) if index % 2 == i]
+        o_history = [TurnBasedState._to_openspiel_action(state, o, h) for index, h in enumerate(histories) if index % 2 == o]
         return i_history, o_history
 
     @staticmethod

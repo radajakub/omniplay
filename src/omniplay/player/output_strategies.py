@@ -31,8 +31,8 @@ Please return your answer with the action only, no explanation.
 def _normalize_action(action: str | None) -> str | None:
     if not action:
         return None
-    action = action.strip().strip('<>').strip()
-    return f'<{action}>' if action else None
+    action = action.strip().strip("<>").strip()
+    return f"<{action}>" if action else None
 
 
 class TextStrategy(OutputStrategy):
@@ -48,12 +48,12 @@ class TextStrategy(OutputStrategy):
             return OutputStrategyExtractionResult()
         # take the last non-empty line, dropping an optional "Action:" label
         line = text.splitlines()[-1].strip()
-        line = re.sub(r'^Action:\s*', '', line).strip()
+        line = re.sub(r"^Action:\s*", "", line).strip()
         return OutputStrategyExtractionResult(action=_normalize_action(line))
 
 
 class ActionSchema(BaseModel):
-    action: str = Field(description='The action to play in the next turn')
+    action: str = Field(description="The action to play in the next turn")
 
 
 class StructuredOutputStrategy(OutputStrategy):

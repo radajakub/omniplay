@@ -36,7 +36,7 @@ jobs:
       name: pypi
       url: https://pypi.org/p/omniplay
     permissions:
-      id-token: write  # required for trusted publishing
+      id-token: write # required for trusted publishing
     steps:
       - name: Download build artifacts
         uses: actions/download-artifact@v4

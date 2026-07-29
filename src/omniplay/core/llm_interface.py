@@ -11,7 +11,7 @@ class LLMAction:
         return self.string
 
     def __str__(self) -> str:
-        return f'LLMAction: {self.string}'
+        return f"LLMAction: {self.string}"
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -25,7 +25,7 @@ class LLMPosition:
         return self.string
 
     def __str__(self) -> str:
-        return f'LLMPosition: {self.string}'
+        return f"LLMPosition: {self.string}"
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -39,7 +39,7 @@ class LLMPartialState:
         return self.string
 
     def __str__(self) -> str:
-        return f'LLMPartialState: {self.string}'
+        return f"LLMPartialState: {self.string}"
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -48,17 +48,26 @@ class LLMPartialState:
 class LLMObservation:
     @staticmethod
     def actions_prompt(actions: list[LLMAction]) -> str:
-        return ', '.join(action.to_prompt() for action in actions)
+        return ", ".join(action.to_prompt() for action in actions)
 
     @staticmethod
     def positions_prompt(positions: list[LLMPosition]) -> str:
-        return ', '.join(position.to_prompt() for position in positions)
+        return ", ".join(position.to_prompt() for position in positions)
 
     @staticmethod
     def partial_states_prompt(partial_states: list[LLMPartialState]) -> str:
-        return ', '.join(partial_state.to_prompt() for partial_state in partial_states)
+        return ", ".join(partial_state.to_prompt() for partial_state in partial_states)
 
-    def __init__(self, state: str, partial_states: list[LLMPartialState], i_actions: list[LLMAction], o_actions: list[LLMAction], i_positions: list[LLMPosition], o_positions: list[LLMPosition], player_order: PlayerOrder) -> None:
+    def __init__(
+        self,
+        state: str,
+        partial_states: list[LLMPartialState],
+        i_actions: list[LLMAction],
+        o_actions: list[LLMAction],
+        i_positions: list[LLMPosition],
+        o_positions: list[LLMPosition],
+        player_order: PlayerOrder,
+    ) -> None:
         # canonical open spiel observation, typically a grid
         self.state = state
         # state represented as partials, i.e. rows, columns, piles etc.
@@ -89,10 +98,10 @@ class LLMObservation:
 
     def __str__(self) -> str:
         return (
-            f'LLMObservation:\n{self.state}\n'
-            f'Partial States: {self.all_partial_states_prompt()}\n'
-            f'Positions[i]: {self.i_positions_prompt()}\nActions[i]: {self.i_actions_prompt()}\n'
-            f'Positions[o]: {self.o_positions_prompt()}\nActions[o]: {self.o_actions_prompt()}'
+            f"LLMObservation:\n{self.state}\n"
+            f"Partial States: {self.all_partial_states_prompt()}\n"
+            f"Positions[i]: {self.i_positions_prompt()}\nActions[i]: {self.i_actions_prompt()}\n"
+            f"Positions[o]: {self.o_positions_prompt()}\nActions[o]: {self.o_actions_prompt()}"
         )
 
     def __repr__(self) -> str:

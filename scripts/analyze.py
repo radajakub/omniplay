@@ -8,6 +8,7 @@ Examples:
     uv run python scripts/analyze.py --name smoke --games tic_tac_toe: --players random:distribution=uniform \\
         --opponents optimal:stochastic=True --num-games 10
 """
+
 from __future__ import annotations
 
 import argparse
@@ -24,22 +25,22 @@ from omniplay.analysis.stats.matchup_stats import MatchupStats  # noqa: E402
 
 def _fmt(bundle: CIBundle) -> str:
     ci = bundle.wilson or bundle.t or bundle.sem or bundle.bootstrap
-    interval = f'  [{ci.lower:.4f}, {ci.upper:.4f}]' if ci is not None else ''
-    return f'{bundle.value:10.4f}{interval}  (n={bundle.n})'
+    interval = f"  [{ci.lower:.4f}, {ci.upper:.4f}]" if ci is not None else ""
+    return f"{bundle.value:10.4f}{interval}  (n={bundle.n})"
 
 
 def _print_matchup(stats: MatchupStats) -> None:
-    print(f'\n{stats.game.to_string()}  |  {stats.i.to_string()}  vs  {stats.o.to_string()}  |  n={stats.n_games}')
+    print(f"\n{stats.game.to_string()}  |  {stats.i.to_string()}  vs  {stats.o.to_string()}  |  n={stats.n_games}")
     for name, bundle in stats.metrics.combined.metrics.items():
-        print(f'  {name.value:28s} {_fmt(bundle)}')
+        print(f"  {name.value:28s} {_fmt(bundle)}")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     add_source_args(parser)
-    parser.add_argument('--confidence', type=float, default=0.95, help='confidence level (default 0.95)')
-    parser.add_argument('--include-fails', action='store_true', help='fold the player\'s own failed games into loss rate')
-    parser.add_argument('--no-quality', action='store_true', help='skip optimality/regret (no minimax replay)')
+    parser.add_argument("--confidence", type=float, default=0.95, help="confidence level (default 0.95)")
+    parser.add_argument("--include-fails", action="store_true", help="fold the player's own failed games into loss rate")
+    parser.add_argument("--no-quality", action="store_true", help="skip optimality/regret (no minimax replay)")
     args = parser.parse_args()
 
     op = build_op()
@@ -50,8 +51,8 @@ def main() -> None:
     matchups = [stats for stats in analysis.analyze() if stats.completed]
     for stats in matchups:
         _print_matchup(stats)
-    print(f'\n{len(matchups)} matchup(s) analyzed.')
+    print(f"\n{len(matchups)} matchup(s) analyzed.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

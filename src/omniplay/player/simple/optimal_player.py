@@ -25,14 +25,14 @@ class OptimalParams(PlayerParams):
     @classmethod
     def from_string(cls, params_string: str) -> OptimalParams:
         params = extract_params(params_string)
-        return cls(stochastic=to_bool(params.get('stochastic', False)), eps=float(params.get('eps', 0)))
+        return cls(stochastic=to_bool(params.get("stochastic", False)), eps=float(params.get("eps", 0)))
 
     def to_string(self) -> str:
-        return f'stochastic={self.stochastic}'
+        return f"stochastic={self.stochastic}"
 
     @property
     def path_suffix(self) -> str:
-        return 'stochastic' if self.stochastic else 'deterministic'
+        return "stochastic" if self.stochastic else "deterministic"
 
 
 class Judgeable(ABC):
@@ -61,12 +61,12 @@ class OptimalPlayer(Player, Judgeable):
             self._cache.save(str(path))
 
     def _verdict(self, player: int, os_state: str) -> AVQ:
-        assert self._cache is not None, 'Optimal policy not initialized'
+        assert self._cache is not None, "Optimal policy not initialized"
 
         entry = self._cache[player, os_state]
 
         if entry is None:
-            raise ValueError(f'Optimal action not found for state {os_state} and player {player}')
+            raise ValueError(f"Optimal action not found for state {os_state} and player {player}")
 
         return entry
 
@@ -86,4 +86,4 @@ class OptimalPlayer(Player, Judgeable):
         return self._verdict(player, observation.os_observation.state)
 
     def format_llm_output(self, player_output: PlayerOutput) -> str:
-        return ''
+        return ""

@@ -1,5 +1,6 @@
 """Phase 3 verification: every registered game builds via the registry and plays to a terminal
 state with random players, with no illegal moves and legal-move round-tripping intact."""
+
 from __future__ import annotations
 
 import asyncio
@@ -8,13 +9,13 @@ from dataclasses import dataclass
 
 import pytest
 
-from omniplay.games.builtins import register_builtin_games
 from omniplay.common.enums import GameResults
 from omniplay.configs.player_config import PlayerConfig
 from omniplay.configs.player_params import PlayerParams
-from omniplay.core.interface import InterfaceAction, InterfaceObservation
 from omniplay.core.game import TurnBasedGame
+from omniplay.core.interface import InterfaceAction, InterfaceObservation
 from omniplay.core.prompt_adapter import PromptAdapter
+from omniplay.games.builtins import register_builtin_games
 from omniplay.player.player import Player, PlayerOutput
 from omniplay.registry import Registry
 
@@ -29,7 +30,7 @@ class _RandParams(PlayerParams):
     seed: str
 
     @classmethod
-    def from_string(cls, params_string: str) -> '_RandParams':
+    def from_string(cls, params_string: str) -> "_RandParams":
         return cls(params_string)
 
     def to_string(self) -> str:
@@ -55,25 +56,25 @@ class _RandomPlayer(Player):
         return PlayerOutput(action=choice)
 
     def format_llm_output(self, player_output: PlayerOutput) -> str:
-        return ''
+        return ""
 
 
 def _players() -> tuple[_RandomPlayer, _RandomPlayer]:
-    i = PlayerConfig('rand', _RandParams('1'))
-    o = PlayerConfig('rand', _RandParams('2'))
-    return _RandomPlayer(i, 'i', seed=1), _RandomPlayer(o, 'o', seed=2)
+    i = PlayerConfig("rand", _RandParams("1"))
+    o = PlayerConfig("rand", _RandParams("2"))
+    return _RandomPlayer(i, "i", seed=1), _RandomPlayer(o, "o", seed=2)
 
 
-@pytest.mark.parametrize('game_key', registry.game_keys())
+@pytest.mark.parametrize("game_key", registry.game_keys())
 def test_game_plays_to_terminal(game_key: str):
-    engine = registry.build_engine(registry.game_config(f'{game_key}:'))
+    engine = registry.build_engine(registry.game_config(f"{game_key}:"))
     tracker = asyncio.run(engine.play(_players()))
 
-    assert tracker.ending is not None, f'{game_key} did not reach a terminal state'
+    assert tracker.ending is not None, f"{game_key} did not reach a terminal state"
     assert tracker.ending.result in _VALID_RESULTS
     assert len(tracker.steps) >= 1
     # random players pick only legal moves, so there should be no FAIL steps
-    assert all(not step.move.startswith('FAIL') for step in tracker.steps), f'{game_key} produced an illegal move'
+    assert all(not step.move.startswith("FAIL") for step in tracker.steps), f"{game_key} produced an illegal move"
     # both players are bots -> no token accounting
     assert all(step.input_tokens is None for step in tracker.steps)
 
@@ -86,10 +87,9 @@ def test_all_ten_games_registered():
 
 def test_game_config_round_trips_old_strings():
     # migration guarantee: the registry parses the original serialization unchanged
-    for raw in ['tic_tac_toe:', 'magic_square:sample=False,magic_constant_add=0',
-                'nim:', 'nim:sample=True,num_piles=4,max_pile_size=8,pile_sum=16,nim_start=winning']:
+    for raw in ["tic_tac_toe:", "magic_square:sample=False,magic_constant_add=0", "nim:", "nim:sample=True,num_piles=4,max_pile_size=8,pile_sum=16,nim_start=winning"]:
         assert registry.game_config(raw).to_string() == raw
-    assert registry.game_config('magic_square:sample=False,magic_constant_add=0').path == 'magic_square_normal_add_0'
-    assert registry.game_config('tic_tac_toe:').path == 'tic_tac_toe'
-    assert registry.solvable('connect_four') is False
-    assert registry.solvable('tic_tac_toe') is True
+    assert registry.game_config("magic_square:sample=False,magic_constant_add=0").path == "magic_square_normal_add_0"
+    assert registry.game_config("tic_tac_toe:").path == "tic_tac_toe"
+    assert registry.solvable("connect_four") is False
+    assert registry.solvable("tic_tac_toe") is True

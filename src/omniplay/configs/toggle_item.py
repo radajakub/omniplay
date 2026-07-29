@@ -14,7 +14,7 @@ class ToggleItem(Serializable):
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> ToggleItem:
-        return cls(data['value'], to_bool(data['enabled']))
+        return cls(data["value"], to_bool(data["enabled"]))
 
     def to_dict(self) -> dict[str, Any]:
-        return {'value': self.value, 'enabled': self.enabled}
+        return {"value": self.value, "enabled": self.enabled}

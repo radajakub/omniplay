@@ -12,12 +12,12 @@ class PlayerConfig:
     params: PlayerParams
 
     def to_string(self) -> str:
-        return f'{self.key}:{self.params.to_string()}'
+        return f"{self.key}:{self.params.to_string()}"
 
     @property
     def path(self) -> str:
         suffix = self.params.path_suffix
-        return f'{self.key}_{suffix}' if suffix else self.key
+        return f"{self.key}_{suffix}" if suffix else self.key
 
     @property
     def hash(self) -> str:

@@ -11,13 +11,13 @@ from omniplay.core.interface import InterfaceTransformer
 from omniplay.core.prompt_adapter import PromptAdapter
 from omniplay.games.generators.magic_squares import MagicSquare, MagicSquareGenerator
 from omniplay.games.tic_tac_toe.magic_square import MagicSquareGameParams
-from omniplay.visualization.grid import GridAxisLabel, GridPrinter, grid_to_positions
 from omniplay.games.tic_tac_toe.tic_tac_toe import TicTacToeAction, TicTacToeObservation
+from omniplay.visualization.grid import GridAxisLabel, GridPrinter, grid_to_positions
 
 
 class StoryMagicSquare(TurnBasedGame):
     def __init__(self) -> None:
-        super().__init__(game_type='story_magic_square', game_name='tic_tac_toe')
+        super().__init__(game_type="story_magic_square", game_name="tic_tac_toe")
 
 
 class StoryMagicSquareTransformer(InterfaceTransformer):
@@ -31,39 +31,39 @@ class StoryMagicSquareTransformer(InterfaceTransformer):
         self.square = self.ms_gen.new()
 
     def _inner_llm_action(self, action: TicTacToeAction) -> str:
-        return f'jump:{self.square(action.row, action.col)}'
+        return f"jump:{self.square(action.row, action.col)}"
 
     def _inner_llm_partial_states(self, observation: TicTacToeObservation) -> list[str]:
         return []
 
     def _inner_llm_positions(self, observation: TicTacToeObservation) -> tuple[list[str], list[str]]:
-        i_sign, o_sign = ('X', 'O') if observation.player_order.is_first() else ('O', 'X')
+        i_sign, o_sign = ("X", "O") if observation.player_order.is_first() else ("O", "X")
         return grid_to_positions(observation.state, i_sign, o_sign, lambda r, c: str(self.square(r - 1, c - 1)))
 
     def display_action(self, action: TicTacToeAction) -> str:
-        return f'jump:{self.square(action.row, action.col)}'
+        return f"jump:{self.square(action.row, action.col)}"
 
     def _inner_llm_state(self, observation: TicTacToeObservation) -> str:
         unselected_numbers = []
         for row in range(len(observation.state)):
             for col in range(len(observation.state[row])):
-                if observation.state[row][col] == '.':
+                if observation.state[row][col] == ".":
                     unselected_numbers.append(self.square(row, col))
-        return ', '.join(str(number) for number in sorted(unselected_numbers))
+        return ", ".join(str(number) for number in sorted(unselected_numbers))
 
     def _inner_display_state(self, observation: TicTacToeObservation) -> str:
         state: list[list[str]] = []
         for row in range(len(observation.state)):
             state.append([])
             for col in range(len(observation.state[row])):
-                if observation.state[row][col] == '.':
+                if observation.state[row][col] == ".":
                     state[row].append(str(self.square(row, col)))
                 else:
                     state[row].append(observation.state[row][col])
         return StoryMagicSquareTransformer.printer(state)
 
     def get_other_params(self) -> dict[str, Any] | None:
-        return {'layout': self.square.square.tolist()}
+        return {"layout": self.square.square.tolist()}
 
     def set_state(self, layout: list[list[int]]) -> None:
         self.square = MagicSquare(np.array(layout))
@@ -87,12 +87,11 @@ For instance, jump:1 means jumping 1 distance, jump:7 means jumping 7 distances.
 
 class StoryMagicSquarePromptAdapter(PromptAdapter):
     def __init__(self) -> None:
-        super().__init__(head_prompt_template=STORY_MAGIC_SQUARE_HEAD_PROMPT,
-                         use_partial_state=False, position_name='jumps', order_actions=True)
+        super().__init__(head_prompt_template=STORY_MAGIC_SQUARE_HEAD_PROMPT, use_partial_state=False, position_name="jumps", order_actions=True)
         self.head_prompt = self.head_prompt_template
 
     def action_format(self) -> str:
-        return '<jump:number_of_distances_to_jump>, e.g., <jump:1>, <jump:7>'
+        return "<jump:number_of_distances_to_jump>, e.g., <jump:1>, <jump:7>"
 
     def restart_prompt(self) -> None:
         pass
@@ -102,8 +101,7 @@ class StoryMagicSquareEngine(TurnBasedEngine):
     def __init__(self, game_config: GameConfig) -> None:
         params = cast(MagicSquareGameParams, game_config.params)
         transformer = StoryMagicSquareTransformer(sample=params.sample)
-        super().__init__(game_config, StoryMagicSquare(), transformer,
-                         StoryMagicSquarePromptAdapter(), TicTacToeAction, TicTacToeObservation)
+        super().__init__(game_config, StoryMagicSquare(), transformer, StoryMagicSquarePromptAdapter(), TicTacToeAction, TicTacToeObservation)
 
     def reset(self) -> None:
         self.interface_transformer.reset()

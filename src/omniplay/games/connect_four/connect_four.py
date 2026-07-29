@@ -13,27 +13,27 @@ from omniplay.visualization.grid import GridAxisLabel, GridPrinter, grid_to_posi
 
 class ConnectFourGame(TurnBasedGame):
     def __init__(self) -> None:
-        super().__init__(game_type='connect_four', game_name='connect_four')
+        super().__init__(game_type="connect_four", game_name="connect_four")
 
 
 class ConnectFourTransformer(InterfaceTransformer):
     printer = GridPrinter(row_header=GridAxisLabel.NONE, col_header=GridAxisLabel.NUMBERS)
 
     def _inner_llm_action(self, action: ConnectFourAction) -> str:
-        return f'C{action.column + 1}'
+        return f"C{action.column + 1}"
 
     def display_action(self, action: ConnectFourAction) -> str:
-        return f'{action.symbol}{action.column + 1}'
+        return f"{action.symbol}{action.column + 1}"
 
     def _inner_llm_state(self, observation: ConnectFourObservation) -> str:
-        return '\n'.join(''.join(row) for row in observation.state)
+        return "\n".join("".join(row) for row in observation.state)
 
     def _inner_llm_partial_states(self, observation: ConnectFourObservation) -> list[str]:
         return []
 
     def _inner_llm_positions(self, observation: ConnectFourObservation) -> tuple[list[str], list[str]]:
-        i_sign, o_sign = ('X', 'O') if observation.player_order.is_first() else ('O', 'X')
-        return grid_to_positions(list(reversed(observation.state)), i_sign, o_sign, lambda r, c: f'C{c}R{r}')
+        i_sign, o_sign = ("X", "O") if observation.player_order.is_first() else ("O", "X")
+        return grid_to_positions(list(reversed(observation.state)), i_sign, o_sign, lambda r, c: f"C{c}R{r}")
 
     def _inner_display_state(self, observation: ConnectFourObservation) -> str:
         return ConnectFourTransformer.printer(observation.state)
@@ -51,9 +51,9 @@ class ConnectFourTransformer(InterfaceTransformer):
 class ConnectFourAction(InterfaceAction):
     @staticmethod
     def from_openspiel(action: OpenSpielAction, interface_transformer: ConnectFourTransformer) -> ConnectFourAction:
-        match = re.match(r'([ox])(\d+)', action.string)
+        match = re.match(r"([ox])(\d+)", action.string)
         if not match:
-            raise ValueError(f'Invalid action string format: {action.string}')
+            raise ValueError(f"Invalid action string format: {action.string}")
         symbol = match.group(1)
         column = int(match.group(2))
         return ConnectFourAction(symbol, column, action.number, interface_transformer)
@@ -64,22 +64,22 @@ class ConnectFourAction(InterfaceAction):
         self.column = column
 
     def to_openspiel(self) -> OpenSpielAction:
-        return OpenSpielAction(self.number, f'{self.symbol}{self.column}')
+        return OpenSpielAction(self.number, f"{self.symbol}{self.column}")
 
 
 class ConnectFourObservation(InterfaceObservation):
     @staticmethod
     def _format_cell(cell: str) -> str:
-        if cell == 'x':
-            return 'X'
-        if cell == 'o':
-            return 'O'
-        return '.'
+        if cell == "x":
+            return "X"
+        if cell == "o":
+            return "O"
+        return "."
 
     @staticmethod
     def _state_from_openspiel(state: str) -> list[list[str]]:
         # OpenSpiel Connect Four adds an extra empty row; drop empty lines
-        rows = [x for x in state.split('\n') if x.strip()]
+        rows = [x for x in state.split("\n") if x.strip()]
         return [[ConnectFourObservation._format_cell(cell) for cell in row] for row in rows]
 
     @staticmethod
@@ -89,7 +89,14 @@ class ConnectFourObservation(InterfaceObservation):
         o_actions = [ConnectFourAction.from_openspiel(action, interface_transformer) for action in observation.o_actions]
         return ConnectFourObservation(observation, state, i_actions, o_actions, interface_transformer)
 
-    def __init__(self, os_observation: OpenSpielObservation, state: list[list[str]], i_actions: list[ConnectFourAction], o_actions: list[ConnectFourAction], interface_transformer: ConnectFourTransformer) -> None:
+    def __init__(
+        self,
+        os_observation: OpenSpielObservation,
+        state: list[list[str]],
+        i_actions: list[ConnectFourAction],
+        o_actions: list[ConnectFourAction],
+        interface_transformer: ConnectFourTransformer,
+    ) -> None:
         super().__init__(os_observation, i_actions, o_actions, interface_transformer)
         self.state = state
 
@@ -110,7 +117,7 @@ class ConnectFourPromptAdapter(PromptAdapter):
         self.head_prompt = self.head_prompt_template
 
     def action_format(self) -> str:
-        return '<Cx>, e.g., <C1>, <C3>'
+        return "<Cx>, e.g., <C1>, <C3>"
 
     def restart_prompt(self) -> None:
         pass
@@ -118,8 +125,7 @@ class ConnectFourPromptAdapter(PromptAdapter):
 
 class ConnectFourEngine(TurnBasedEngine):
     def __init__(self, game_config: GameConfig) -> None:
-        super().__init__(game_config, ConnectFourGame(), ConnectFourTransformer(),
-                         ConnectFourPromptAdapter(), ConnectFourAction, ConnectFourObservation)
+        super().__init__(game_config, ConnectFourGame(), ConnectFourTransformer(), ConnectFourPromptAdapter(), ConnectFourAction, ConnectFourObservation)
 
     def reset(self) -> None:
         self.game.reset()

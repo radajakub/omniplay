@@ -14,7 +14,15 @@ from omniplay.trackers.player_tracker import PlayerTrackerResolver
 
 
 class TurnBasedEngine(ABC):
-    def __init__(self, game_config: GameConfig, game: TurnBasedGame, interface_transformer: InterfaceTransformer, prompt_adapter: PromptAdapter, action_class: type[InterfaceAction], observation_class: type[InterfaceObservation]) -> None:
+    def __init__(
+        self,
+        game_config: GameConfig,
+        game: TurnBasedGame,
+        interface_transformer: InterfaceTransformer,
+        prompt_adapter: PromptAdapter,
+        action_class: type[InterfaceAction],
+        observation_class: type[InterfaceObservation],
+    ) -> None:
         self.game_config = game_config
         self.game = game
         self.interface_transformer = interface_transformer
@@ -75,10 +83,8 @@ class TurnBasedEngine(ABC):
             os_moves: list[OpenSpielAction] = self.game.get_legal_moves(pid)
 
             # (2) convert to interface observation and actions
-            observation: InterfaceObservation = self.observation_class.from_openspiel(
-                os_observation, self.interface_transformer)
-            actions: list[InterfaceAction] = [self.action_class.from_openspiel(
-                move, self.interface_transformer) for move in os_moves]
+            observation: InterfaceObservation = self.observation_class.from_openspiel(os_observation, self.interface_transformer)
+            actions: list[InterfaceAction] = [self.action_class.from_openspiel(move, self.interface_transformer) for move in os_moves]
 
             # (3) query the player
             player = players[pid]
@@ -90,8 +96,7 @@ class TurnBasedEngine(ABC):
             player_output = await player(self.game, observation, actions)
 
             # (6) record the move in the game tracker
-            tracker.add_move(player.player_config, observation, player_output,
-                             self.game.serialize_state(), self.trackers)
+            tracker.add_move(player.player_config, observation, player_output, self.game.serialize_state(), self.trackers)
 
             # (7) player callback after the move is executed
             game_callbacks.on_after_move(player, player_output, tracker.steps[-1])
@@ -102,8 +107,7 @@ class TurnBasedEngine(ABC):
             # (5) handle a failed move (illegal / malformed) and exit early
             if player_output.action is None:
                 tracker.add_fail(player.player_config, self._get_ending(1 - pid))
-                results = (GameResults.MY_FAIL, GameResults.OPPONENT_FAIL) if pid == 0 else (
-                    GameResults.OPPONENT_FAIL, GameResults.MY_FAIL)
+                results = (GameResults.MY_FAIL, GameResults.OPPONENT_FAIL) if pid == 0 else (GameResults.OPPONENT_FAIL, GameResults.MY_FAIL)
                 game_callbacks.on_game_end(tracker, results)
                 return tracker
 

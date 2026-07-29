@@ -24,7 +24,7 @@ class Saveable(Serializable):
         path = Path(filepath)
         if not path.parent.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             json.dump(self.to_dict(), f, indent=None)
 
     @classmethod
@@ -35,14 +35,14 @@ class Saveable(Serializable):
 
 class ThreadSafeSaveable(Serializable):
     def save(self, filepath: str) -> None:
-        lock_path = Path(filepath).with_suffix('.lock')
-        tmp_path = Path(filepath).with_suffix('.tmp')
+        lock_path = Path(filepath).with_suffix(".lock")
+        tmp_path = Path(filepath).with_suffix(".tmp")
 
-        with open(lock_path, 'w') as lock:
+        with open(lock_path, "w") as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
 
             # write to a temporary file first to prevent corruption, then atomically rename
-            with open(tmp_path, 'w') as tmp:
+            with open(tmp_path, "w") as tmp:
                 json.dump(self.to_dict(), tmp, allow_nan=True, indent=2)
                 tmp.flush()
                 os.fsync(tmp.fileno())
@@ -52,7 +52,7 @@ class ThreadSafeSaveable(Serializable):
             fcntl.flock(lock, fcntl.LOCK_UN)
 
     def cleanup(self, filepath: str, part_filepath: str) -> None:
-        Path(filepath).with_suffix('.lock').unlink(missing_ok=True)
-        Path(filepath).with_suffix('.tmp').unlink(missing_ok=True)
+        Path(filepath).with_suffix(".lock").unlink(missing_ok=True)
+        Path(filepath).with_suffix(".tmp").unlink(missing_ok=True)
         Path(part_filepath).unlink(missing_ok=True)
-        Path(part_filepath).with_suffix('.lock').unlink(missing_ok=True)
+        Path(part_filepath).with_suffix(".lock").unlink(missing_ok=True)

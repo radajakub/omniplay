@@ -13,27 +13,27 @@ from omniplay.visualization.grid import GridAxisLabel, GridPrinter, grid_to_posi
 
 class TicTacToeGame(TurnBasedGame):
     def __init__(self) -> None:
-        super().__init__(game_type='tic_tac_toe', game_name='tic_tac_toe')
+        super().__init__(game_type="tic_tac_toe", game_name="tic_tac_toe")
 
 
 class TicTacToeTransformer(InterfaceTransformer):
     printer = GridPrinter(row_header=GridAxisLabel.NUMBERS, col_header=GridAxisLabel.NUMBERS)
 
     def _inner_llm_action(self, action: TicTacToeAction) -> str:
-        return f'C{action.col + 1}R{action.row + 1}'
+        return f"C{action.col + 1}R{action.row + 1}"
 
     def display_action(self, action: TicTacToeAction) -> str:
-        return f'{action.symbol}[{action.row + 1}, {action.col + 1}]'
+        return f"{action.symbol}[{action.row + 1}, {action.col + 1}]"
 
     def _inner_llm_state(self, observation: TicTacToeObservation) -> str:
-        return '\n'.join(''.join(row) for row in observation.state)
+        return "\n".join("".join(row) for row in observation.state)
 
     def _inner_llm_partial_states(self, observation: TicTacToeObservation) -> list[str]:
         return []
 
     def _inner_llm_positions(self, observation: TicTacToeObservation) -> tuple[list[str], list[str]]:
-        i_sign, o_sign = ('X', 'O') if observation.player_order.is_first() else ('O', 'X')
-        return grid_to_positions(observation.state, i_sign, o_sign, lambda r, c: f'C{c}R{r}')
+        i_sign, o_sign = ("X", "O") if observation.player_order.is_first() else ("O", "X")
+        return grid_to_positions(observation.state, i_sign, o_sign, lambda r, c: f"C{c}R{r}")
 
     def _inner_display_state(self, observation: TicTacToeObservation) -> str:
         return TicTacToeTransformer.printer(observation.state)
@@ -51,9 +51,9 @@ class TicTacToeTransformer(InterfaceTransformer):
 class TicTacToeAction(InterfaceAction):
     @staticmethod
     def from_openspiel(action: OpenSpielAction, interface_transformer: TicTacToeTransformer) -> TicTacToeAction:
-        match = re.match(r'([ox])\((\d+),\s*(\d+)\)', action.string)
+        match = re.match(r"([ox])\((\d+),\s*(\d+)\)", action.string)
         if not match:
-            raise ValueError(f'Invalid action string format: {action.string}')
+            raise ValueError(f"Invalid action string format: {action.string}")
         symbol = match.group(1)
         row = int(match.group(2))
         col = int(match.group(3))
@@ -66,21 +66,21 @@ class TicTacToeAction(InterfaceAction):
         self.col = col
 
     def to_openspiel(self) -> OpenSpielAction:
-        return OpenSpielAction(self.number, f'{self.symbol.lower()}({self.row},{self.col})')
+        return OpenSpielAction(self.number, f"{self.symbol.lower()}({self.row},{self.col})")
 
 
 class TicTacToeObservation(InterfaceObservation):
     @staticmethod
     def _format_cell(cell: str) -> str:
-        if cell == 'x':
-            return 'X'
-        if cell == 'o':
-            return 'O'
-        return '.'
+        if cell == "x":
+            return "X"
+        if cell == "o":
+            return "O"
+        return "."
 
     @staticmethod
     def _state_from_openspiel(state: str) -> list[list[str]]:
-        rows = state.split('\n')
+        rows = state.split("\n")
         return [[TicTacToeObservation._format_cell(cell) for cell in row] for row in rows]
 
     @staticmethod
@@ -90,7 +90,14 @@ class TicTacToeObservation(InterfaceObservation):
         o_actions = [TicTacToeAction.from_openspiel(action, interface_transformer) for action in observation.o_actions]
         return TicTacToeObservation(observation, state, i_actions, o_actions, interface_transformer)
 
-    def __init__(self, os_observation: OpenSpielObservation, state: list[list[str]], i_actions: list[TicTacToeAction], o_actions: list[TicTacToeAction], interface_transformer: TicTacToeTransformer) -> None:
+    def __init__(
+        self,
+        os_observation: OpenSpielObservation,
+        state: list[list[str]],
+        i_actions: list[TicTacToeAction],
+        o_actions: list[TicTacToeAction],
+        interface_transformer: TicTacToeTransformer,
+    ) -> None:
         super().__init__(os_observation, i_actions, o_actions, interface_transformer)
         self.state = state
 
@@ -109,12 +116,11 @@ You are playing this game with the user (opponent).
 
 class TicTacToePromptAdapter(PromptAdapter):
     def __init__(self) -> None:
-        super().__init__(head_prompt_template=TIC_TAC_TOE_HEAD_PROMPT,
-                         use_partial_state=False, position_name='positions', order_actions=True)
+        super().__init__(head_prompt_template=TIC_TAC_TOE_HEAD_PROMPT, use_partial_state=False, position_name="positions", order_actions=True)
         self.head_prompt = self.head_prompt_template
 
     def action_format(self) -> str:
-        return '<CxRy>, e.g., <C1R1>, <C3R3>'
+        return "<CxRy>, e.g., <C1R1>, <C3R3>"
 
     def restart_prompt(self) -> None:
         pass
@@ -122,8 +128,7 @@ class TicTacToePromptAdapter(PromptAdapter):
 
 class TicTacToeEngine(TurnBasedEngine):
     def __init__(self, game_config: GameConfig) -> None:
-        super().__init__(game_config, TicTacToeGame(), TicTacToeTransformer(),
-                         TicTacToePromptAdapter(), TicTacToeAction, TicTacToeObservation)
+        super().__init__(game_config, TicTacToeGame(), TicTacToeTransformer(), TicTacToePromptAdapter(), TicTacToeAction, TicTacToeObservation)
 
     def reset(self) -> None:
         self.game.reset()

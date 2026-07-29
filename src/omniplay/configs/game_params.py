@@ -28,8 +28,8 @@ class NoGameParams(GameParams):
         return cls()
 
     def to_string(self) -> str:
-        return ''
+        return ""
 
     @property
     def path_suffix(self) -> str:
-        return ''
+        return ""

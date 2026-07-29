@@ -3,20 +3,20 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from omniplay.harness.results import BenchmarkResults
 from omniplay.configs.game_config import GameConfig
 from omniplay.configs.player_config import PlayerConfig
+from omniplay.harness.results import BenchmarkResults
 from omniplay.trackers.result_tracker import ResultTracker
 
 # Orchestration-layer phase hooks, the counterpart to the game-loop `GameCallbacks`. A caller (or an
 # agent building a more complex evaluation flow) supplies these to observe/act at benchmark, matchup
 # and round boundaries; they never drive gameplay. All slots are optional and null-guarded.
 BenchmarkStartCallback = Callable[[list[str], list[str], list[str]], None]
-BenchmarkEndCallback = Callable[['BenchmarkResults'], None]
-MatchupStartCallback = Callable[['ResultTracker', 'GameConfig', 'PlayerConfig', 'PlayerConfig'], None]
-MatchupEndCallback = Callable[['ResultTracker'], None]
-RoundStartCallback = Callable[['GameConfig', 'PlayerConfig', 'PlayerConfig', int], None]
-RoundCompleteCallback = Callable[['GameConfig', 'PlayerConfig', 'PlayerConfig', int], None]
+BenchmarkEndCallback = Callable[["BenchmarkResults"], None]
+MatchupStartCallback = Callable[["ResultTracker", "GameConfig", "PlayerConfig", "PlayerConfig"], None]
+MatchupEndCallback = Callable[["ResultTracker"], None]
+RoundStartCallback = Callable[["GameConfig", "PlayerConfig", "PlayerConfig", int], None]
+RoundCompleteCallback = Callable[["GameConfig", "PlayerConfig", "PlayerConfig", int], None]
 
 
 @dataclass
@@ -60,24 +60,25 @@ class BenchmarkCallbacks:
             def call(*args: object) -> None:
                 for child in children:
                     getattr(child, method_name)(*args)
+
             return call
 
         return cls(
-            benchmark_start_callback=fan('on_benchmark_start'),
-            benchmark_end_callback=fan('on_benchmark_end'),
-            matchup_start_callback=fan('on_matchup_start'),
-            matchup_end_callback=fan('on_matchup_end'),
-            round_start_callback=fan('on_round_start'),
-            round_complete_callback=fan('on_round_complete'),
+            benchmark_start_callback=fan("on_benchmark_start"),
+            benchmark_end_callback=fan("on_benchmark_end"),
+            matchup_start_callback=fan("on_matchup_start"),
+            matchup_end_callback=fan("on_matchup_end"),
+            round_start_callback=fan("on_round_start"),
+            round_complete_callback=fan("on_round_complete"),
         )
 
 
 def console_benchmark_callbacks() -> BenchmarkCallbacks:
     def on_matchup_start(result_tracker: ResultTracker, game_config: GameConfig, i: PlayerConfig, o: PlayerConfig) -> None:
         done = len(result_tracker.get_completed_games())
-        print(f'[benchmark] {game_config.path}: {i.path} vs {o.path} ({done}/{result_tracker.n})')
+        print(f"[benchmark] {game_config.path}: {i.path} vs {o.path} ({done}/{result_tracker.n})")
 
     def on_matchup_end(result_tracker: ResultTracker) -> None:
-        print(f'[benchmark] done: {result_tracker.game.path} {result_tracker.i.path} vs {result_tracker.o.path}')
+        print(f"[benchmark] done: {result_tracker.game.path} {result_tracker.i.path} vs {result_tracker.o.path}")
 
     return BenchmarkCallbacks(matchup_start_callback=on_matchup_start, matchup_end_callback=on_matchup_end)

@@ -9,57 +9,54 @@ from omniplay.core.interface import InterfaceTransformer
 from omniplay.core.prompt_adapter import PromptAdapter
 from omniplay.games.generators.nim import NimGenerator, NimInstance
 from omniplay.games.nim.nim import NimAction, NimGameParams, NimObservation
-from omniplay.visualization.characters import CharacterPrinter
 from omniplay.utils.text import order_suffix
+from omniplay.visualization.characters import CharacterPrinter
 
 
 class StoryNimGame(TurnBasedGame):
     @staticmethod
     def format_params(is_misere: bool, pile_sizes: list[int]) -> dict[str, Any]:
-        return {'is_misere': is_misere, 'pile_sizes': ';'.join(str(pile) for pile in pile_sizes)}
+        return {"is_misere": is_misere, "pile_sizes": ";".join(str(pile) for pile in pile_sizes)}
 
     def __init__(self, is_misere: bool, pile_sizes: list[int]) -> None:
-        super().__init__(game_type='story_nim', game_name='nim', params=StoryNimGame.format_params(is_misere, pile_sizes))
+        super().__init__(game_type="story_nim", game_name="nim", params=StoryNimGame.format_params(is_misere, pile_sizes))
 
 
 class StoryNimTransformer(InterfaceTransformer):
-    names = ['alice', 'bob', 'charlie', 'dave']
+    names = ["alice", "bob", "charlie", "dave"]
     printer = CharacterPrinter(fixed_width=8)
 
     @staticmethod
     def idx_to_name(index: int) -> str:
         return StoryNimTransformer.names[index]
 
-    def __init__(self, sample: bool = False, max_pile_size: int = 8, num_piles: int = 4, pile_sum: int = 16, nim_start: Literal['winning', 'losing'] = 'winning') -> None:
+    def __init__(self, sample: bool = False, max_pile_size: int = 8, num_piles: int = 4, pile_sum: int = 16, nim_start: Literal["winning", "losing"] = "winning") -> None:
         self.max_pile_size = max_pile_size
-        self.nim_gen = NimGenerator(inverse=True, sample=sample, num_piles=num_piles, max_pile_size=max_pile_size,
-                                    pile_sum=pile_sum, nim_start=nim_start, allow_zero=False)
+        self.nim_gen = NimGenerator(inverse=True, sample=sample, num_piles=num_piles, max_pile_size=max_pile_size, pile_sum=pile_sum, nim_start=nim_start, allow_zero=False)
         self.instance = self.nim_gen.new()
 
     def _inner_llm_action(self, action: NimAction) -> str:
-        return f'{StoryNimTransformer.idx_to_name(action.pile)}:{action.take}'
+        return f"{StoryNimTransformer.idx_to_name(action.pile)}:{action.take}"
 
     def display_action(self, action: NimAction) -> str:
-        return f'{StoryNimTransformer.idx_to_name(action.pile)}:{action.take}'
+        return f"{StoryNimTransformer.idx_to_name(action.pile)}:{action.take}"
 
     def _inner_llm_state(self, observation: NimObservation) -> str:
-        return ' '.join(str(self.max_pile_size - pile) for pile in observation.state)
+        return " ".join(str(self.max_pile_size - pile) for pile in observation.state)
 
     def _handle_end(self, name: str, position: int) -> str:
         if position == self.max_pile_size:
-            return f'{name} is at the end'
-        return f'{name} is on the {position}{order_suffix(position)} square'
+            return f"{name} is at the end"
+        return f"{name} is on the {position}{order_suffix(position)} square"
 
     def _inner_llm_partial_states(self, observation: NimObservation) -> list[str]:
-        return [self._handle_end(StoryNimTransformer.idx_to_name(i), self.max_pile_size - position)
-                for i, position in enumerate(observation.state)]
+        return [self._handle_end(StoryNimTransformer.idx_to_name(i), self.max_pile_size - position) for i, position in enumerate(observation.state)]
 
     def _inner_llm_positions(self, observation: NimObservation) -> tuple[list[str], list[str]]:
         return [], []
 
     def _inner_display_state(self, observation: NimObservation) -> str:
-        return StoryNimTransformer.printer(names=StoryNimTransformer.names,
-                                           positions=[self.max_pile_size - pile for pile in observation.state])
+        return StoryNimTransformer.printer(names=StoryNimTransformer.names, positions=[self.max_pile_size - pile for pile in observation.state])
 
     def get_original_pile_sizes(self) -> list[int]:
         return [self.max_pile_size - pile for pile in self.instance.pile_sizes]
@@ -91,18 +88,22 @@ class StoryNimPromptAdapter(PromptAdapter):
         self.max_pile_size = max_pile_size
 
     def action_format(self) -> str:
-        return '<name:move_right>, e.g., <alice:3>'
+        return "<name:move_right>, e.g., <alice:3>"
 
     def restart_prompt(self, names: list[str], max_pile_size: int) -> None:
-        self.head_prompt = self.head_prompt_template.format(names=', '.join(names), num_squares=max_pile_size)
+        self.head_prompt = self.head_prompt_template.format(names=", ".join(names), num_squares=max_pile_size)
 
 
 class StoryNimEngine(TurnBasedEngine):
     def __init__(self, game_config: GameConfig) -> None:
         self.nim_params = cast(NimGameParams, game_config.params)
-        transformer = StoryNimTransformer(sample=self.nim_params.sample, num_piles=self.nim_params.num_piles,
-                                          max_pile_size=self.nim_params.max_pile_size, pile_sum=self.nim_params.pile_sum,
-                                          nim_start=self.nim_params.nim_start)
+        transformer = StoryNimTransformer(
+            sample=self.nim_params.sample,
+            num_piles=self.nim_params.num_piles,
+            max_pile_size=self.nim_params.max_pile_size,
+            pile_sum=self.nim_params.pile_sum,
+            nim_start=self.nim_params.nim_start,
+        )
         game = StoryNimGame(is_misere=True, pile_sizes=transformer.instance.pile_sizes)
         adapter = StoryNimPromptAdapter(max_pile_size=self.nim_params.max_pile_size)
         super().__init__(game_config, game, transformer, adapter, NimAction, NimObservation)

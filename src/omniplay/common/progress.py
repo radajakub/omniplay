@@ -4,7 +4,7 @@ import sys
 from collections.abc import Iterable, Iterator
 from typing import TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def track(items: Iterable[T], desc: str, total: int | None = None, enabled: bool | None = None) -> Iterator[T]:
@@ -13,4 +13,5 @@ def track(items: Iterable[T], desc: str, total: int | None = None, enabled: bool
         yield from items
         return
     from tqdm import tqdm
+
     yield from tqdm(items, desc=desc, total=total, leave=False)

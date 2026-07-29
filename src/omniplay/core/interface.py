@@ -15,7 +15,7 @@ class InterfaceTransformer(ABC):
 
     def llm_action(self, action: InterfaceAction) -> LLMAction:
         inner_llm_action = self._inner_llm_action(action)
-        return LLMAction(f'<{inner_llm_action}>')
+        return LLMAction(f"<{inner_llm_action}>")
 
     @abstractmethod
     def display_action(self, action: InterfaceAction) -> str:
@@ -54,9 +54,9 @@ class InterfaceTransformer(ABC):
 
     def display_observation(self, observation: InterfaceObservation) -> str:
         state = self._inner_display_state(observation)
-        i_actions = ', '.join(f'{action}' for action in observation.i_actions)
-        o_actions = ', '.join(f'{action}' for action in observation.o_actions)
-        return f'State:\n{state}\nI: {i_actions}\nO: {o_actions}'
+        i_actions = ", ".join(f"{action}" for action in observation.i_actions)
+        o_actions = ", ".join(f"{action}" for action in observation.o_actions)
+        return f"State:\n{state}\nI: {i_actions}\nO: {o_actions}"
 
     @abstractmethod
     def reset(self) -> None:
@@ -101,7 +101,9 @@ class InterfaceObservation(ABC):
     def from_openspiel(observation: OpenSpielObservation, interface_transformer: InterfaceTransformer) -> InterfaceObservation:
         raise NotImplementedError
 
-    def __init__(self, os_observation: OpenSpielObservation, i_actions: list[InterfaceAction], o_actions: list[InterfaceAction], interface_transformer: InterfaceTransformer) -> None:
+    def __init__(
+        self, os_observation: OpenSpielObservation, i_actions: list[InterfaceAction], o_actions: list[InterfaceAction], interface_transformer: InterfaceTransformer
+    ) -> None:
         # keep the original observation for the MCTS/optimal players to use
         self.os_observation = os_observation
         self.i_actions = i_actions

@@ -18,5 +18,4 @@ class NoOpTracker(PlayerTracker):
 
 
 class PlayerTrackerResolver(Protocol):
-    def player_tracker(self, key: str) -> PlayerTracker:
-        ...
+    def player_tracker(self, key: str) -> PlayerTracker: ...

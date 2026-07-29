@@ -21,8 +21,7 @@ class BenchmarkResults:
         key = self._key(game_config, player_config, opponent_config)
         tracker = self._index.get(key)
         if tracker is None:
-            raise ValueError(
-                f'No result for game={game_config.to_string()} player={player_config.to_string()} opponent={opponent_config.to_string()}')
+            raise ValueError(f"No result for game={game_config.to_string()} player={player_config.to_string()} opponent={opponent_config.to_string()}")
         return tracker
 
     def for_player(self, player_config: PlayerConfig) -> list[ResultTracker]:

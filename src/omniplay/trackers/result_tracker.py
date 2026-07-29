@@ -8,8 +8,8 @@ from typing import Any
 from omniplay.common.paths import BenchmarkPathBuilder, ExperimentPathBuilder
 from omniplay.common.serializable import Saveable
 from omniplay.configs.game_config import GameConfig
-from omniplay.configs.player_config import PlayerConfig
 from omniplay.configs.parser import ConfigParser
+from omniplay.configs.player_config import PlayerConfig
 from omniplay.trackers.game_tracker import GameTracker
 
 
@@ -21,26 +21,36 @@ class ResultTracker(Saveable):
         return i_games, o_games
 
     @classmethod
-    def new(cls, experiment: str, i: PlayerConfig, o: PlayerConfig, game: GameConfig, n: int, parser: ConfigParser, path_builder: ExperimentPathBuilder | None = None, save_on_record: bool = True) -> ResultTracker:
+    def new(
+        cls,
+        experiment: str,
+        i: PlayerConfig,
+        o: PlayerConfig,
+        game: GameConfig,
+        n: int,
+        parser: ConfigParser,
+        path_builder: ExperimentPathBuilder | None = None,
+        save_on_record: bool = True,
+    ) -> ResultTracker:
         path_builder = path_builder if path_builder is not None else BenchmarkPathBuilder()
         return cls(experiment, i, o, game, n, set(), parser, path_builder=path_builder, save_on_record=save_on_record)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any], parser: ConfigParser, path_builder: ExperimentPathBuilder) -> ResultTracker:
         return cls(
-            data['experiment'],
-            parser.player_config(data['i_config']),
-            parser.player_config(data['o_config']),
-            parser.game_config(data['game_config']),
-            data['n_games'],
-            {int(x) for x in data['completed']},
+            data["experiment"],
+            parser.player_config(data["i_config"]),
+            parser.player_config(data["o_config"]),
+            parser.game_config(data["game_config"]),
+            data["n_games"],
+            {int(x) for x in data["completed"]},
             parser,
             path_builder=path_builder,
         )
 
     @classmethod
     def load_metadata_only(cls, filepath: Path, parser: ConfigParser, path_builder: ExperimentPathBuilder) -> ResultTracker:
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             return cls.from_dict(json.load(f), parser, path_builder)
 
     @classmethod
@@ -50,7 +60,19 @@ class ResultTracker(Saveable):
             tracker.games[game_round - 1] = tracker.load_game(game_round)
         return tracker
 
-    def __init__(self, experiment: str, i: PlayerConfig, o: PlayerConfig, game: GameConfig, n: int, completed: set[int], parser: ConfigParser, path_builder: ExperimentPathBuilder, games: list[GameTracker | None] | None = None, save_on_record: bool = True) -> None:
+    def __init__(
+        self,
+        experiment: str,
+        i: PlayerConfig,
+        o: PlayerConfig,
+        game: GameConfig,
+        n: int,
+        completed: set[int],
+        parser: ConfigParser,
+        path_builder: ExperimentPathBuilder,
+        games: list[GameTracker | None] | None = None,
+        save_on_record: bool = True,
+    ) -> None:
         self.experiment = experiment
         self.i = i
         self.o = o
@@ -75,7 +97,7 @@ class ResultTracker(Saveable):
 
     def record_game(self, game_round: int, game_tracker: GameTracker) -> None:
         if self.games[game_round - 1] is not None:
-            raise ValueError(f'Game {game_round} already recorded')
+            raise ValueError(f"Game {game_round} already recorded")
         self.games[game_round - 1] = game_tracker
         if self.save_on_record:
             self.save_game(game_round, game_tracker)
@@ -84,15 +106,15 @@ class ResultTracker(Saveable):
         game_path = self.path_builder.game_file(self.base_path, game_round)
         if not game_path.exists():
             return None
-        with open(game_path, 'r') as f:
+        with open(game_path, "r") as f:
             return GameTracker.from_dict(json.load(f), self.parser)
 
     def save_game(self, game_round: int, game_tracker: GameTracker) -> None:
         self.base_path.mkdir(parents=True, exist_ok=True)
         game_path = self.path_builder.game_file(self.base_path, game_round)
-        temp_path = game_path.with_suffix('.tmp')
+        temp_path = game_path.with_suffix(".tmp")
         try:
-            with open(temp_path, 'w') as f:
+            with open(temp_path, "w") as f:
                 json.dump(game_tracker.to_dict(), f, indent=None)
                 f.flush()
                 os.fsync(f.fileno())
@@ -118,16 +140,24 @@ class ResultTracker(Saveable):
 
     def invert(self) -> ResultTracker:
         return ResultTracker(
-            self.experiment, self.o, self.i, self.game, self.n, self.completed, self.parser,
-            path_builder=self.path_builder, games=self.games, save_on_record=self.save_on_record,
+            self.experiment,
+            self.o,
+            self.i,
+            self.game,
+            self.n,
+            self.completed,
+            self.parser,
+            path_builder=self.path_builder,
+            games=self.games,
+            save_on_record=self.save_on_record,
         )
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            'experiment': self.experiment,
-            'i_config': self.i.to_string(),
-            'o_config': self.o.to_string(),
-            'game_config': self.game.to_string(),
-            'n_games': self.n,
-            'completed': list(self.completed),
+            "experiment": self.experiment,
+            "i_config": self.i.to_string(),
+            "o_config": self.o.to_string(),
+            "game_config": self.game.to_string(),
+            "n_games": self.n,
+            "completed": list(self.completed),
         }

@@ -6,6 +6,7 @@ Examples:
     uv run python scripts/play.py --game nim: --i optimal: --o mcts:max_simulations=200,rollout_count=1,uct_c=2.0
 Enter moves for a human player using the printed move strings (e.g. C2R2).
 """
+
 from __future__ import annotations
 
 import argparse
@@ -26,38 +27,38 @@ from omniplay.trackers.game_tracker import GameStep, GameTracker  # noqa: E402
 
 def _console_callbacks() -> GameCallbacks:
     def before(player: Player, observation: InterfaceObservation, legal_moves: list[InterfaceAction]) -> None:
-        print(f'\n=== {player.player_config.to_string()} to move ===')
+        print(f"\n=== {player.player_config.to_string()} to move ===")
         if not isinstance(player, HumanPlayer):
             print(observation)
 
     def after(player: Player, output: PlayerOutput, step: GameStep) -> None:
-        print(f'  -> {step.move}')
+        print(f"  -> {step.move}")
 
     def end(tracker: GameTracker, results: tuple[GameResults, GameResults]) -> None:
         assert tracker.ending is not None
-        print('\n=== game over ===')
+        print("\n=== game over ===")
         print(tracker.ending.observation)
-        print(f'i-player result: {results[0].value} ({results[0].name})')
+        print(f"i-player result: {results[0].value} ({results[0].name})")
 
     return GameCallbacks(before_move_callback=before, after_move_callback=after, game_end_callback=end)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--game', default='tic_tac_toe:', help='game config string (default tic_tac_toe:)')
-    parser.add_argument('--i', default='human:', help='first-player config (default human:)')
-    parser.add_argument('--o', default='optimal:stochastic=True', help='second-player config (default optimal:stochastic=True)')
+    parser.add_argument("--game", default="tic_tac_toe:", help="game config string (default tic_tac_toe:)")
+    parser.add_argument("--i", default="human:", help="first-player config (default human:)")
+    parser.add_argument("--o", default="optimal:stochastic=True", help="second-player config (default optimal:stochastic=True)")
     args = parser.parse_args()
 
     op = build_op()
     engine = op.registry.build_engine(op.registry.game_config(args.game))
     players = (
-        op.registry.build_player(engine.game, op.registry.player_config(args.i), 'i'),
-        op.registry.build_player(engine.game, op.registry.player_config(args.o), 'o'),
+        op.registry.build_player(engine.game, op.registry.player_config(args.i), "i"),
+        op.registry.build_player(engine.game, op.registry.player_config(args.o), "o"),
     )
 
     asyncio.run(engine.play(players, game_callbacks=_console_callbacks()))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

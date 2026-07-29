@@ -14,9 +14,9 @@ from omniplay.core.game import TurnBasedGame, TurnBasedState
 class AVQ(Serializable):
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> AVQ:
-        A = [int(a) for a in data['A']]
-        V = float(data['V'])
-        Q = {int(k): float(v) for k, v in data['Q'].items()}
+        A = [int(a) for a in data["A"]]
+        V = float(data["V"])
+        Q = {int(k): float(v) for k, v in data["Q"].items()}
         return cls(A, V, Q)
 
     def __init__(self, A: list[int], V: float, Q: dict[int, float]) -> None:
@@ -25,7 +25,7 @@ class AVQ(Serializable):
         self._Q = Q  # Q-values of the actions available in this state
 
     def to_dict(self) -> dict[str, Any]:
-        return {'A': self._A, 'V': self._V, 'Q': self._Q}
+        return {"A": self._A, "V": self._V, "Q": self._Q}
 
     def A(self) -> list[int]:
         return self._A
@@ -46,20 +46,19 @@ class AVQ(Serializable):
 
     def Q(self, a: int) -> float:
         if a not in self._Q:
-            raise ValueError(f'Q-value not found for action {a}')
+            raise ValueError(f"Q-value not found for action {a}")
         return self._Q[a]
 
 
 class AVQCache(Saveable):
     @classmethod
     def from_dict(cls, data: dict[Any, dict[str, Any]]) -> AVQCache:
-        cache = {int(player): {str(state): AVQ.from_dict(avq) for state, avq in player_cache.items()}
-                 for player, player_cache in data.items()}
+        cache = {int(player): {str(state): AVQ.from_dict(avq) for state, avq in player_cache.items()} for player, player_cache in data.items()}
         return cls(cache)
 
     @classmethod
     def load(cls, filepath: str) -> AVQCache:
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             return cls.from_dict(json.load(f))
 
     def __init__(self, cache: dict[int, dict[str, AVQ]] | None = None) -> None:
@@ -74,8 +73,7 @@ class AVQCache(Saveable):
         self.cache.setdefault(player, {})[state] = avq
 
     def to_dict(self) -> dict[int, dict[str, Any]]:
-        return {player: {state: avq.to_dict() for state, avq in player_cache.items()}
-                for player, player_cache in self.cache.items()}
+        return {player: {state: avq.to_dict() for state, avq in player_cache.items()} for player, player_cache in self.cache.items()}
 
 
 def solve_game(game: TurnBasedGame) -> AVQCache:

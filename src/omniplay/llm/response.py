@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from omniplay.llm.providers.providers import Provider
 from omniplay.llm.tokens import EmbeddingTokens, LLMTokens
 
-T = TypeVar('T', bound=BaseModel)
+T = TypeVar("T", bound=BaseModel)
 
 
 @dataclass(frozen=True)

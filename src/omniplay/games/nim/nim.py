@@ -11,8 +11,8 @@ from omniplay.core.game import OpenSpielAction, OpenSpielObservation, TurnBasedG
 from omniplay.core.interface import InterfaceAction, InterfaceObservation, InterfaceTransformer
 from omniplay.core.prompt_adapter import PromptAdapter
 from omniplay.games.generators.nim import NimGenerator, NimInstance
-from omniplay.visualization.piles import PilePrinter
 from omniplay.utils.text import extract_params, order_suffix, to_bool
+from omniplay.visualization.piles import PilePrinter
 
 
 @dataclass(frozen=True, eq=True)
@@ -21,60 +21,58 @@ class NimGameParams(GameParams):
     num_piles: int = 4
     max_pile_size: int = 8
     pile_sum: int = 16
-    nim_start: Literal['winning', 'losing'] = 'winning'
+    nim_start: Literal["winning", "losing"] = "winning"
 
     @classmethod
     def from_string(cls, params_string: str) -> NimGameParams:
         params = extract_params(params_string)
         return cls(
-            sample=to_bool(params.get('sample', False)),
-            num_piles=int(params.get('num_piles', 4)),
-            max_pile_size=int(params.get('max_pile_size', 8)),
-            pile_sum=int(params.get('pile_sum', 16)),
-            nim_start=params.get('nim_start', 'winning'),
+            sample=to_bool(params.get("sample", False)),
+            num_piles=int(params.get("num_piles", 4)),
+            max_pile_size=int(params.get("max_pile_size", 8)),
+            pile_sum=int(params.get("pile_sum", 16)),
+            nim_start=params.get("nim_start", "winning"),
         )
 
     def to_string(self) -> str:
         if not self.sample:
-            return ''
-        return (f'sample=True,num_piles={self.num_piles},max_pile_size={self.max_pile_size},'
-                f'pile_sum={self.pile_sum},nim_start={self.nim_start}')
+            return ""
+        return f"sample=True,num_piles={self.num_piles},max_pile_size={self.max_pile_size},pile_sum={self.pile_sum},nim_start={self.nim_start}"
 
     @property
     def path_suffix(self) -> str:
         if not self.sample:
-            return ''
-        return f'sample_{self.num_piles}_piles_{self.max_pile_size}_max_size_{self.pile_sum}_sum_{self.nim_start}'
+            return ""
+        return f"sample_{self.num_piles}_piles_{self.max_pile_size}_max_size_{self.pile_sum}_sum_{self.nim_start}"
 
 
 class NimGame(TurnBasedGame):
     @staticmethod
     def format_params(is_misere: bool, pile_sizes: list[int]) -> dict[str, Any]:
-        return {'is_misere': is_misere, 'pile_sizes': ';'.join(str(pile) for pile in pile_sizes)}
+        return {"is_misere": is_misere, "pile_sizes": ";".join(str(pile) for pile in pile_sizes)}
 
     def __init__(self, is_misere: bool, pile_sizes: list[int]) -> None:
-        super().__init__(game_type='nim', game_name='nim', params=NimGame.format_params(is_misere, pile_sizes))
+        super().__init__(game_type="nim", game_name="nim", params=NimGame.format_params(is_misere, pile_sizes))
 
 
 class NimTransformer(InterfaceTransformer):
-    printer = PilePrinter(column_label='pile', fixed_height=8)
+    printer = PilePrinter(column_label="pile", fixed_height=8)
 
-    def __init__(self, sample: bool = False, max_pile_size: int = 8, num_piles: int = 4, pile_sum: int = 16, nim_start: Literal['winning', 'losing'] = 'winning') -> None:
-        self.nim_gen = NimGenerator(inverse=False, sample=sample, num_piles=num_piles, max_pile_size=max_pile_size,
-                                    pile_sum=pile_sum, nim_start=nim_start, allow_zero=True)
+    def __init__(self, sample: bool = False, max_pile_size: int = 8, num_piles: int = 4, pile_sum: int = 16, nim_start: Literal["winning", "losing"] = "winning") -> None:
+        self.nim_gen = NimGenerator(inverse=False, sample=sample, num_piles=num_piles, max_pile_size=max_pile_size, pile_sum=pile_sum, nim_start=nim_start, allow_zero=True)
         self.instance = self.nim_gen.new()
 
     def _inner_llm_action(self, action: NimAction) -> str:
-        return f'pile:{action.pile + 1}, take:{action.take}'
+        return f"pile:{action.pile + 1}, take:{action.take}"
 
     def display_action(self, action: NimAction) -> str:
-        return f'pile:{action.pile + 1}, take:{action.take}'
+        return f"pile:{action.pile + 1}, take:{action.take}"
 
     def _inner_llm_state(self, observation: NimObservation) -> str:
-        return ' '.join(str(pile) for pile in observation.state)
+        return " ".join(str(pile) for pile in observation.state)
 
     def _inner_llm_partial_states(self, observation: NimObservation) -> list[str]:
-        return [f'the {i}{order_suffix(i)} pile has {pile} matches' for i, pile in enumerate(observation.state, start=1)]
+        return [f"the {i}{order_suffix(i)} pile has {pile} matches" for i, pile in enumerate(observation.state, start=1)]
 
     def _inner_llm_positions(self, observation: NimObservation) -> tuple[list[str], list[str]]:
         return [], []
@@ -95,9 +93,9 @@ class NimTransformer(InterfaceTransformer):
 class NimAction(InterfaceAction):
     @staticmethod
     def from_openspiel(action: OpenSpielAction, interface_transformer: NimTransformer) -> NimAction:
-        match = re.match(r'pile:(\d+), take:(\d+);', action.string)
+        match = re.match(r"pile:(\d+), take:(\d+);", action.string)
         if not match:
-            raise ValueError(f'Invalid action string format: {action.string}')
+            raise ValueError(f"Invalid action string format: {action.string}")
         pile = int(match.group(1)) - 1
         take = int(match.group(2))
         return NimAction(pile, take, action.number, interface_transformer)
@@ -108,13 +106,13 @@ class NimAction(InterfaceAction):
         self.take = take
 
     def to_openspiel(self) -> OpenSpielAction:
-        return OpenSpielAction(self.number, f'pile:{self.pile + 1}, take:{self.take};')
+        return OpenSpielAction(self.number, f"pile:{self.pile + 1}, take:{self.take};")
 
 
 class NimObservation(InterfaceObservation):
     @staticmethod
     def _state_from_openspiel(state: str) -> list[int]:
-        return [int(pile) for pile in state.split(' ')[1:]]
+        return [int(pile) for pile in state.split(" ")[1:]]
 
     @staticmethod
     def from_openspiel(observation: OpenSpielObservation, interface_transformer: NimTransformer) -> NimObservation:
@@ -123,7 +121,9 @@ class NimObservation(InterfaceObservation):
         o_actions = [NimAction.from_openspiel(action, interface_transformer) for action in observation.o_actions]
         return NimObservation(observation, state, i_actions, o_actions, interface_transformer)
 
-    def __init__(self, os_observation: OpenSpielObservation, state: list[int], i_actions: list[NimAction], o_actions: list[NimAction], interface_transformer: NimTransformer) -> None:
+    def __init__(
+        self, os_observation: OpenSpielObservation, state: list[int], i_actions: list[NimAction], o_actions: list[NimAction], interface_transformer: NimTransformer
+    ) -> None:
         super().__init__(os_observation, i_actions, o_actions, interface_transformer)
         self.state = state
 
@@ -138,22 +138,20 @@ The action is presented in <pile:x, take:y>, which means take y match(es) from t
 
 class NimPromptAdapter(PromptAdapter):
     def __init__(self) -> None:
-        super().__init__(head_prompt_template=NIM_HEAD_PROMPT, use_partial_state=True, position_name='', order_actions=False)
+        super().__init__(head_prompt_template=NIM_HEAD_PROMPT, use_partial_state=True, position_name="", order_actions=False)
 
     def action_format(self) -> str:
-        return '<pile:x, take:y>, e.g., <pile:1, take:1>, <pile:4, take:7>'
+        return "<pile:x, take:y>, e.g., <pile:1, take:1>, <pile:4, take:7>"
 
     def restart_prompt(self, num_piles: int, pile_sizes: list[int]) -> None:
-        pile_sizes_string = ', '.join(str(pile) for pile in pile_sizes[:-1]) + ', and ' + str(pile_sizes[-1])
+        pile_sizes_string = ", ".join(str(pile) for pile in pile_sizes[:-1]) + ", and " + str(pile_sizes[-1])
         self.head_prompt = self.head_prompt_template.format(num_piles=num_piles, pile_sizes=pile_sizes_string)
 
 
 class NimEngine(TurnBasedEngine):
     def __init__(self, game_config: GameConfig) -> None:
         params = cast(NimGameParams, game_config.params)
-        transformer = NimTransformer(sample=params.sample, max_pile_size=params.max_pile_size,
-                                     num_piles=params.num_piles, pile_sum=params.pile_sum,
-                                     nim_start=params.nim_start)
+        transformer = NimTransformer(sample=params.sample, max_pile_size=params.max_pile_size, num_piles=params.num_piles, pile_sum=params.pile_sum, nim_start=params.nim_start)
         game = NimGame(is_misere=True, pile_sizes=transformer.instance.pile_sizes)
         super().__init__(game_config, game, transformer, NimPromptAdapter(), NimAction, NimObservation)
 

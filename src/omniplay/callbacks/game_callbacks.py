@@ -6,16 +6,15 @@ from dataclasses import dataclass
 from omniplay.common.enums import GameResults
 from omniplay.configs.player_config import PlayerConfig
 from omniplay.core.interface import InterfaceAction, InterfaceObservation
-
 from omniplay.player.player import Player, PlayerOutput
 from omniplay.trackers.game_tracker import GameStep, GameTracker
 
 # Game-loop phase hooks. An agent (or any caller) supplies these to observe the game as it plays;
 # they never mutate game state. All slots are optional and null-guarded (default GameCallbacks() = no-op).
-GameStartCallback = Callable[['GameTracker'], None]
-BeforeMoveCallback = Callable[['Player', InterfaceObservation, list[InterfaceAction]], None]
-AfterMoveCallback = Callable[['Player', 'PlayerOutput', 'GameStep'], None]
-GameEndCallback = Callable[['GameTracker', tuple[GameResults, GameResults]], None]
+GameStartCallback = Callable[["GameTracker"], None]
+BeforeMoveCallback = Callable[["Player", InterfaceObservation, list[InterfaceAction]], None]
+AfterMoveCallback = Callable[["Player", "PlayerOutput", "GameStep"], None]
+GameEndCallback = Callable[["GameTracker", tuple[GameResults, GameResults]], None]
 
 
 @dataclass
@@ -49,13 +48,14 @@ class GameCallbacks:
             def call(*args: object) -> None:
                 for child in children:
                     getattr(child, method_name)(*args)
+
             return call
 
         return cls(
-            game_start_callback=fan('on_game_start'),
-            before_move_callback=fan('on_before_move'),
-            after_move_callback=fan('on_after_move'),
-            game_end_callback=fan('on_game_end'),
+            game_start_callback=fan("on_game_start"),
+            before_move_callback=fan("on_before_move"),
+            after_move_callback=fan("on_after_move"),
+            game_end_callback=fan("on_game_end"),
         )
 
     @staticmethod

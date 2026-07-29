@@ -10,8 +10,8 @@ from omniplay.llm.concurrency import safe_call
 from omniplay.llm.llm_config import LLMConfig
 from omniplay.llm.message import LLMMessage
 from omniplay.llm.options import LLMCallOptions
-from omniplay.llm.providers.providers import Provider
 from omniplay.llm.providers.openai.models import openai_models
+from omniplay.llm.providers.providers import Provider
 from omniplay.llm.response import EmbeddingResponse, LLMResponse, OutputText, ReasoningTrace
 from omniplay.llm.tokens import EmbeddingTokens, LLMTokens
 
@@ -19,22 +19,17 @@ _RETRY_ERRORS = (RateLimitError, APIConnectionError, APITimeoutError, APIError)
 
 
 def _reasoning_summaries(response: Any) -> list[str]:
-    return [
-        summary.text
-        for item in response.output
-        if item.type == 'reasoning'
-        for summary in item.summary
-    ]
+    return [summary.text for item in response.output if item.type == "reasoning" for summary in item.summary]
 
 
 def responses_tokens(usage: Any) -> LLMTokens:
-    input_details = getattr(usage, 'input_tokens_details', None)
-    output_details = getattr(usage, 'output_tokens_details', None)
+    input_details = getattr(usage, "input_tokens_details", None)
+    output_details = getattr(usage, "output_tokens_details", None)
     return LLMTokens(
         input_tokens=usage.input_tokens or 0,
         output_tokens=usage.output_tokens or 0,
-        cached_input_tokens=getattr(input_details, 'cached_tokens', 0) or 0,
-        reasoning_tokens=getattr(output_details, 'reasoning_tokens', 0) or 0,
+        cached_input_tokens=getattr(input_details, "cached_tokens", 0) or 0,
+        reasoning_tokens=getattr(output_details, "reasoning_tokens", 0) or 0,
     )
 
 
@@ -85,7 +80,7 @@ class OpenAILLMClient(LLMClient):
     ) -> LLMResponse:
         model = self.resolve_model(model_name)
         if output_schema is not None and not model.can_use_json_schema:
-            raise ValueError(f'Model {model.model_name} does not support JSON schema')
+            raise ValueError(f"Model {model.model_name} does not support JSON schema")
 
         params = model.extract_params(options)
         kwargs: dict[str, Any] = dict(
@@ -93,17 +88,15 @@ class OpenAILLMClient(LLMClient):
             instructions=system.content,
             input=[message.to_dict() for message in messages],
             store=False,
-            prompt_cache_key='OmniPlay',
+            prompt_cache_key="OmniPlay",
             **params,
         )
         if output_schema is not None:
-            kwargs['text_format'] = output_schema
+            kwargs["text_format"] = output_schema
 
         method = self._client.responses.parse if output_schema is not None else self._client.responses.create
 
-        response = await self._semaphore.run(
-            lambda: safe_call(lambda: method(**kwargs), retry_errors=_RETRY_ERRORS)
-        )
+        response = await self._semaphore.run(lambda: safe_call(lambda: method(**kwargs), retry_errors=_RETRY_ERRORS))
 
         reasoning = _reasoning_summaries(response)
         output_text = response.output_parsed.model_dump_json() if output_schema is not None else response.output_text

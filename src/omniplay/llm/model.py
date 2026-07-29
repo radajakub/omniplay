@@ -22,11 +22,11 @@ class LLMModel(ABC):
         weak_structured_output: bool = False,
         supported_reasoning: frozenset[ReasoningEffort] | None = None,
     ) -> None:
-        self.model_name = model_name      # stable internal alias, used in configs/results
+        self.model_name = model_name  # stable internal alias, used in configs/results
         self.model_string = model_string  # exact vendor id sent to the API
 
-        self.input_cost = input_cost      # USD per 1M input tokens
-        self.output_cost = output_cost    # USD per 1M output tokens
+        self.input_cost = input_cost  # USD per 1M input tokens
+        self.output_cost = output_cost  # USD per 1M output tokens
         self.cached_input_cost = cached_input_cost  # USD per 1M input tokens
 
         self.thinking = thinking  # if the model supports thinking
@@ -45,19 +45,16 @@ class LLMModel(ABC):
     def _validate_common(self, options: LLMCallOptions) -> None:
         # validation to verify that the options are compatible with the model
         if options.thinking_enabled and not self.thinking:
-            raise ValueError(f'Model {self.model_name} does not support thinking')
+            raise ValueError(f"Model {self.model_name} does not support thinking")
 
         if self.thinking_only and not options.thinking_enabled:
-            raise ValueError(f'Model {self.model_name} requires thinking to be enabled')
+            raise ValueError(f"Model {self.model_name} requires thinking to be enabled")
 
         if options.reasoning_effort is not None:
             if self.supported_reasoning is None:
-                raise ValueError(f'Model {self.model_name} does not accept a reasoning_effort')
+                raise ValueError(f"Model {self.model_name} does not accept a reasoning_effort")
             if options.reasoning_effort not in self.supported_reasoning:
-                raise ValueError(
-                    f'Model {self.model_name} does not support reasoning_effort '
-                    f'{options.reasoning_effort!r}; supported: {sorted(self.supported_reasoning)}'
-                )
+                raise ValueError(f"Model {self.model_name} does not support reasoning_effort {options.reasoning_effort!r}; supported: {sorted(self.supported_reasoning)}")
 
     def validate(self, options: LLMCallOptions) -> None:
         self._validate_common(options)
