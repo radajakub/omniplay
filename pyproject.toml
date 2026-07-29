@@ -31,15 +31,21 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "google-genai>=2.14.0",
     "numpy>=2.5.1",
     "open-spiel>=2.0.1",
-    "openai>=2.48.0",
     "pydantic>=2.13.4",
     "python-dotenv>=1.2.2",
     "scipy>=1.18.0",
     "tqdm>=4.69.1",
 ]
+
+[project.optional-dependencies]
+openai = ["openai>=2.48.0"]
+gemini = ["google-genai>=2.14.0"]
+# metacentrum is an OpenAI-compatible endpoint and reuses the openai SDK
+metacentrum = ["openai>=2.48.0"]
+huggingface = ["torch>=2.4.0", "transformers>=4.44.0"]
+all = ["openai>=2.48.0", "google-genai>=2.14.0", "torch>=2.4.0", "transformers>=4.44.0"]
 
 [project.urls]
 Homepage = "https://omniplay.jakubrada.com"
@@ -69,4 +75,7 @@ select = ["E4", "E7", "E9", "F", "I"]
 dev = [
     "pytest>=9.1.1",
     "ruff>=0.16.0",
+    # provider SDKs are optional extras; include the API-based ones so the test suite runs
+    "openai>=2.48.0",
+    "google-genai>=2.14.0",
 ]
