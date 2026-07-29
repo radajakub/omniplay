@@ -21,6 +21,18 @@ uv add omniplay
 
 Requires Python 3.12+.
 
+Each LLM provider SDK is an optional extra — install only the ones you need (or `all`):
+
+```bash
+pip install "omniplay[openai]"         # OpenAI
+pip install "omniplay[gemini]"         # Google Gemini
+pip install "omniplay[metacentrum]"    # Metacentrum (OpenAI-compatible endpoint)
+pip install "omniplay[huggingface]"    # local HuggingFace models (torch + transformers)
+pip install "omniplay[all]"            # everything
+```
+
+Providers whose SDK is not installed are simply skipped when building `OmniPlay()`.
+
 ## Quickstart
 
 Building an `OmniPlay` object is the one-stop bootstrap: it creates an instance-scoped registry,
@@ -77,7 +89,24 @@ GEMINI_PROJECT=...
 
 METACENTRUM_BASE_URL=...
 METACENTRUM_API_KEY=...
+
+HF_TOKEN=...   # only for gated/private HuggingFace models
 ```
+
+### HuggingFace (local models)
+
+The HuggingFace provider runs models locally instead of calling a remote API — it exposes
+`embed()` (generation is not supported yet). `hf_models` selects which of the supported models
+(see `providers/huggingface/models.py`) this environment uses; they are downloaded/verified into
+the local HF cache at bootstrap:
+
+```python
+op = OmniPlay(hf_models=["sup-simcse-bert"])
+resp = await op.llm.embed(Provider.HUGGINGFACE, "sup-simcse-bert", ["hello"])
+```
+
+Requesting a supported model that was not part of `hf_models` raises an error telling you to add
+it to the bootstrap list. Needs the `huggingface` extra installed.
 
 ## Extending OmniPlay
 
