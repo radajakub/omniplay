@@ -21,7 +21,7 @@ class Distribution(Serializable):
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Distribution:
-        return cls([float(value) for value in data['items']])
+        return cls([float(value) for value in data["items"]])
 
     def add(self, value: float) -> None:
         self.items.append(float(value))
@@ -48,4 +48,4 @@ class Distribution(Serializable):
         return float(np.std(self.items, ddof=ddof))
 
     def to_dict(self) -> dict[str, Any]:
-        return {'items': list(self.items)}
+        return {"items": list(self.items)}

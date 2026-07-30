@@ -24,10 +24,10 @@ class StepStats:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            'seq': self.seq,
-            'input_tokens': self.input_tokens,
-            'output_tokens': self.output_tokens,
-            'state_class': self.state_class.value,
-            'is_optimal': self.is_optimal,
-            'regret': self.regret,
+            "seq": self.seq,
+            "input_tokens": self.input_tokens,
+            "output_tokens": self.output_tokens,
+            "state_class": self.state_class.value,
+            "is_optimal": self.is_optimal,
+            "regret": self.regret,
         }

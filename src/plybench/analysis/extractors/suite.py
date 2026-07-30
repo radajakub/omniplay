@@ -17,8 +17,8 @@ def default_suite(include_fails: bool = False) -> list[Extractor]:
         OutcomeExtractor(MetricName.FAIL_RATE, [GameResults.MY_FAIL]),
         ScoreExtractor(),
         MovesPerGameExtractor(),
-        TotalTokensExtractor(MetricName.INPUT_TOKENS_PER_GAME, 'input_tokens'),
-        TotalTokensExtractor(MetricName.OUTPUT_TOKENS_PER_GAME, 'output_tokens'),
-        PerMoveTokensExtractor(MetricName.INPUT_TOKENS_PER_MOVE, 'input_tokens'),
-        PerMoveTokensExtractor(MetricName.OUTPUT_TOKENS_PER_MOVE, 'output_tokens'),
+        TotalTokensExtractor(MetricName.INPUT_TOKENS_PER_GAME, "input_tokens"),
+        TotalTokensExtractor(MetricName.OUTPUT_TOKENS_PER_GAME, "output_tokens"),
+        PerMoveTokensExtractor(MetricName.INPUT_TOKENS_PER_MOVE, "input_tokens"),
+        PerMoveTokensExtractor(MetricName.OUTPUT_TOKENS_PER_MOVE, "output_tokens"),
     ]

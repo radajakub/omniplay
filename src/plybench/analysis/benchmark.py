@@ -27,5 +27,5 @@ class BenchmarkAnalysis:
         return compute_matchup_stats(tracker, self.registry, self.confidence, self.include_fails)
 
     def analyze(self, progress: bool | None = None) -> list[MatchupStats]:
-        trackers = track(self.results.trackers, 'Computing stats', len(self.results.trackers), progress)
+        trackers = track(self.results.trackers, "Computing stats", len(self.results.trackers), progress)
         return [compute_matchup_stats(tracker, self.registry, self.confidence, self.include_fails) for tracker in trackers]

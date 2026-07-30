@@ -21,13 +21,13 @@ class ConfidenceInterval(Serializable):
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> ConfidenceInterval:
-        return cls(data['value'], data['lower'], data['upper'])
+        return cls(data["value"], data["lower"], data["upper"])
 
     def unwrap(self) -> tuple[float, float, float]:
         return (self.value, self.lower, self.upper)
 
     def to_dict(self) -> dict[str, Any]:
-        return {'value': self.value, 'lower': self.lower, 'upper': self.upper}
+        return {"value": self.value, "lower": self.lower, "upper": self.upper}
 
 
 def _z(confidence: float) -> float:
@@ -83,8 +83,12 @@ def bootstrap_ci(distribution: Distribution, confidence: float = 0.95) -> Confid
     data = np.asarray(distribution.items, dtype=float)
     try:
         result = stats.bootstrap(
-            (data,), np.mean, confidence_level=confidence, n_resamples=_BOOTSTRAP_RESAMPLES,
-            method='BCa', random_state=np.random.default_rng(_BOOTSTRAP_SEED),
+            (data,),
+            np.mean,
+            confidence_level=confidence,
+            n_resamples=_BOOTSTRAP_RESAMPLES,
+            method="BCa",
+            random_state=np.random.default_rng(_BOOTSTRAP_SEED),
         )
     except Exception:
         return ConfidenceInterval(mean, mean, mean)

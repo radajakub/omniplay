@@ -11,7 +11,15 @@ class CIBundle(Serializable):
     """A metric's point value + sample size + whichever confidence intervals apply to its family
     (ratios carry a Wilson interval; means carry SEM / t / bootstrap). Absent intervals are omitted."""
 
-    def __init__(self, value: float, n: int, wilson: ConfidenceInterval | None = None, sem: ConfidenceInterval | None = None, t: ConfidenceInterval | None = None, bootstrap: ConfidenceInterval | None = None) -> None:
+    def __init__(
+        self,
+        value: float,
+        n: int,
+        wilson: ConfidenceInterval | None = None,
+        sem: ConfidenceInterval | None = None,
+        t: ConfidenceInterval | None = None,
+        bootstrap: ConfidenceInterval | None = None,
+    ) -> None:
         self.value = value
         self.n = n
         self.wilson = wilson
@@ -24,11 +32,11 @@ class CIBundle(Serializable):
         def ci(key: str) -> ConfidenceInterval | None:
             return ConfidenceInterval.from_dict(data[key]) if data.get(key) is not None else None
 
-        return cls(data['value'], data['n'], wilson=ci('wilson'), sem=ci('sem'), t=ci('t'), bootstrap=ci('bootstrap'))
+        return cls(data["value"], data["n"], wilson=ci("wilson"), sem=ci("sem"), t=ci("t"), bootstrap=ci("bootstrap"))
 
     def to_dict(self) -> dict[str, Any]:
-        result: dict[str, Any] = {'value': self.value, 'n': self.n}
-        for key, interval in (('wilson', self.wilson), ('sem', self.sem), ('t', self.t), ('bootstrap', self.bootstrap)):
+        result: dict[str, Any] = {"value": self.value, "n": self.n}
+        for key, interval in (("wilson", self.wilson), ("sem", self.sem), ("t", self.t), ("bootstrap", self.bootstrap)):
             if interval is not None:
                 result[key] = interval.to_dict()
         return result
@@ -40,7 +48,8 @@ def ratio_bundle(distribution: Distribution, confidence: float = 0.95) -> CIBund
 
 def mean_bundle(distribution: Distribution, confidence: float = 0.95) -> CIBundle:
     return CIBundle(
-        distribution.mean, distribution.n,
+        distribution.mean,
+        distribution.n,
         sem=sem_ci(distribution, confidence),
         t=t_ci(distribution, confidence),
         bootstrap=bootstrap_ci(distribution, confidence),
