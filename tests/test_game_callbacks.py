@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from omniplay.callbacks.game_callbacks import GameCallbacks
-from omniplay.common.enums import GameResults
-from omniplay.configs.player_config import PlayerConfig
-from omniplay.configs.player_params import PlayerParams
+from plybench.callbacks.game_callbacks import GameCallbacks
+from plybench.common.enums import GameResults
+from plybench.configs.player_config import PlayerConfig
+from plybench.configs.player_params import PlayerParams
 
 
 @dataclass(frozen=True)

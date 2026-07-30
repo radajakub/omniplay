@@ -1,22 +1,22 @@
-# OmniPlay
+# PlyBench
 
-OmniPlay is a benchmark suite for evaluating the performance of LLMs and LLM agents in simple,
+PlyBench is a benchmark suite for evaluating the performance of LLMs and LLM agents in simple,
 fully-observable game environments. It pits players (LLMs, MCTS, optimal solvers, random, or human)
 against each other across a matrix of games and records every step for later analysis.
 
 **Live results** for a selection of models and games are available at
-[omniplay.jakubrada.com](https://omniplay.jakubrada.com).
+[plybench.jakubrada.com](https://plybench.jakubrada.com).
 
 ## Installation
 
 ```bash
-pip install omniplay
+pip install plybench
 ```
 
 Or with [uv](https://docs.astral.sh/uv/):
 
 ```bash
-uv add omniplay
+uv add plybench
 ```
 
 Requires Python 3.12+.
@@ -24,27 +24,27 @@ Requires Python 3.12+.
 Each LLM provider SDK is an optional extra — install only the ones you need (or `all`):
 
 ```bash
-pip install "omniplay[openai]"         # OpenAI
-pip install "omniplay[gemini]"         # Google Gemini
-pip install "omniplay[metacentrum]"    # Metacentrum (OpenAI-compatible endpoint)
-pip install "omniplay[huggingface]"    # local HuggingFace models (torch + transformers)
-pip install "omniplay[all]"            # everything
+pip install "plybench[openai]"         # OpenAI
+pip install "plybench[gemini]"         # Google Gemini
+pip install "plybench[metacentrum]"    # Metacentrum (OpenAI-compatible endpoint)
+pip install "plybench[huggingface]"    # local HuggingFace models (torch + transformers)
+pip install "plybench[all]"            # everything
 ```
 
-Providers whose SDK is not installed are simply skipped when building `OmniPlay()`.
+Providers whose SDK is not installed are simply skipped when building `PlyBench()`.
 
 ## Quickstart
 
-Building an `OmniPlay` object is the one-stop bootstrap: it creates an instance-scoped registry,
+Building an `PlyBench` object is the one-stop bootstrap: it creates an instance-scoped registry,
 registers the built-in games and players, and wires up the LLM router.
 
 ```python
 import asyncio
 
-from omniplay import OmniPlay
-from omniplay.harness.benchmark import Benchmark
+from plybench import PlyBench
+from plybench.harness.benchmark import Benchmark
 
-op = OmniPlay()  # reads provider keys from the environment (see Configuration)
+op = PlyBench()  # reads provider keys from the environment (see Configuration)
 
 benchmark = Benchmark(
     experiment="quickstart",
@@ -76,7 +76,7 @@ Extend either set at runtime via `op.registry.register_game(...)` / `op.registry
 ## Configuration
 
 LLM providers are configured through environment variables (a `.env` file is loaded automatically).
-`OmniPlay()` self-disables any provider whose key is absent, so bot-only benchmarks run offline.
+`PlyBench()` self-disables any provider whose key is absent, so bot-only benchmarks run offline.
 See [`.env.example`](.env.example):
 
 ```bash
@@ -101,14 +101,14 @@ The HuggingFace provider runs models locally instead of calling a remote API —
 the local HF cache at bootstrap:
 
 ```python
-op = OmniPlay(hf_models=["sup-simcse-bert"])
+op = PlyBench(hf_models=["sup-simcse-bert"])
 resp = await op.llm.embed(Provider.HUGGINGFACE, "sup-simcse-bert", ["hello"])
 ```
 
 Requesting a supported model that was not part of `hf_models` raises an error telling you to add
 it to the bootstrap list. Needs the `huggingface` extra installed.
 
-## Extending OmniPlay
+## Extending PlyBench
 
 Games and players are **open registries** on `op.registry` — you can add your own from your own code
 without modifying the package. Each is registered as a spec that pairs a config-string key with the
@@ -132,14 +132,14 @@ Then register a `PlayerSpec`:
 ```python
 from dataclasses import dataclass
 
-from omniplay import OmniPlay
-from omniplay.configs.player_config import PlayerConfig
-from omniplay.configs.player_params import PlayerParams
-from omniplay.core.game import TurnBasedGame
-from omniplay.core.interface import InterfaceAction, InterfaceObservation
-from omniplay.core.prompt_adapter import PromptAdapter
-from omniplay.player.player import Player, PlayerIdentifier, PlayerOutput
-from omniplay.player.spec import PlayerSpec
+from plybench import PlyBench
+from plybench.configs.player_config import PlayerConfig
+from plybench.configs.player_params import PlayerParams
+from plybench.core.game import TurnBasedGame
+from plybench.core.interface import InterfaceAction, InterfaceObservation
+from plybench.core.prompt_adapter import PromptAdapter
+from plybench.player.player import Player, PlayerIdentifier, PlayerOutput
+from plybench.player.spec import PlayerSpec
 
 
 @dataclass(frozen=True, eq=True)
@@ -167,7 +167,7 @@ class FirstMovePlayer(Player):
         return ""
 
 
-op = OmniPlay()
+op = PlyBench()
 op.registry.register_player(PlayerSpec("first", FirstMoveParams, lambda game, cfg, pid: FirstMovePlayer(cfg, pid)))
 # usable anywhere as the config string "first:"
 ```
@@ -177,7 +177,7 @@ op.registry.register_player(PlayerSpec("first", FirstMoveParams, lambda game, cf
 Games are backed by [OpenSpiel](https://github.com/google-deepmind/open_spiel): the underlying game must
 be loadable by `pyspiel.load_game(...)` (a built-in OpenSpiel game or a custom game you register with
 OpenSpiel). A new variant implements the same set of classes the built-ins do — use any game under
-[`src/omniplay/games/`](src/omniplay/games/) (e.g. `tic_tac_toe/tic_tac_toe.py`) as a template:
+[`src/plybench/games/`](src/plybench/games/) (e.g. `tic_tac_toe/tic_tac_toe.py`) as a template:
 
 - **`TurnBasedGame`** — binds a registry `game_type` key to an OpenSpiel `game_name`.
 - **`InterfaceTransformer`** — renders state/actions for both display and the LLM prompt.
@@ -190,8 +190,8 @@ OpenSpiel). A new variant implements the same set of classes the built-ins do �
 Then register a `GameSpec`:
 
 ```python
-from omniplay.configs.game_params import NoGameParams
-from omniplay.games.spec import GameSpec
+from plybench.configs.game_params import NoGameParams
+from plybench.games.spec import GameSpec
 
 op.registry.register_game(
     GameSpec(
@@ -228,8 +228,8 @@ Each file declares the full sweep — the LLM players, the opponents (`random`, 
 the number of rounds — with per-item `enabled` toggles so you can narrow a run without editing the sweep.
 
 ```bash
-git clone https://github.com/radajakub/omniplay.git
-cd omniplay
+git clone https://github.com/radajakub/plybench.git
+cd plybench
 uv sync
 
 # run a prepared experiment (reads experiments/benchmarks/ttt.json)
@@ -251,7 +251,7 @@ Then analyze or export the transcripts:
 
 ```bash
 uv run python scripts/analyze.py --experiment ttt   # compute per-matchup statistics + confidence intervals
-uv run python scripts/export.py --experiment ttt --out ttt.tar.gz   # export results for the OmniPlay website
+uv run python scripts/export.py --experiment ttt --out ttt.tar.gz   # export results for the PlyBench website
 uv run python scripts/play.py --game tic_tac_toe: --i human: --o optimal:stochastic=True  # play interactively
 ```
 

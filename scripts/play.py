@@ -17,12 +17,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from _shared import build_op  # noqa: E402
 
-from omniplay.callbacks.game_callbacks import GameCallbacks  # noqa: E402
-from omniplay.common.enums import GameResults  # noqa: E402
-from omniplay.core.interface import InterfaceAction, InterfaceObservation  # noqa: E402
-from omniplay.player.player import Player, PlayerOutput  # noqa: E402
-from omniplay.player.simple.human_player import HumanPlayer  # noqa: E402
-from omniplay.trackers.game_tracker import GameStep, GameTracker  # noqa: E402
+from plybench.callbacks.game_callbacks import GameCallbacks  # noqa: E402
+from plybench.common.enums import GameResults  # noqa: E402
+from plybench.core.interface import InterfaceAction, InterfaceObservation  # noqa: E402
+from plybench.player.player import Player, PlayerOutput  # noqa: E402
+from plybench.player.simple.human_player import HumanPlayer  # noqa: E402
+from plybench.trackers.game_tracker import GameStep, GameTracker  # noqa: E402
 
 
 def _console_callbacks() -> GameCallbacks:

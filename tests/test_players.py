@@ -7,16 +7,16 @@ import asyncio
 
 import pytest
 
-from omniplay.app import OmniPlay
-from omniplay.common.enums import GameResults
-from omniplay.llm import LLMConfig, LLMResponse, LLMTokens
-from omniplay.llm.response import OutputText, ReasoningTrace
-from omniplay.player.llm_player import LLMPlayer, LLMPlayerTracker
-from omniplay.player.output_strategies import StructuredOutputStrategy
-from omniplay.player.player import PlayerOutput
+from plybench.app import PlyBench
+from plybench.common.enums import GameResults
+from plybench.llm import LLMConfig, LLMResponse, LLMTokens
+from plybench.llm.response import OutputText, ReasoningTrace
+from plybench.player.llm_player import LLMPlayer, LLMPlayerTracker
+from plybench.player.output_strategies import StructuredOutputStrategy
+from plybench.player.player import PlayerOutput
 
 # a full registry (games + players); LLMConfig() has no providers so this is fully offline
-op = OmniPlay(LLMConfig())
+op = PlyBench(LLMConfig())
 registry = op.registry
 
 
