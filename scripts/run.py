@@ -17,7 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from _shared import add_source_args, benchmark_from_args, build_op  # noqa: E402
 
-from omniplay.callbacks.benchmark_callbacks import console_benchmark_callbacks  # noqa: E402
+from plybench.callbacks.benchmark_callbacks import console_benchmark_callbacks  # noqa: E402
 
 
 def main() -> None:

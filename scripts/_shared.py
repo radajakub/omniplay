@@ -1,5 +1,5 @@
 """Shared helpers for the repo-local scripts (not part of the installed package). Bootstraps a single
-OmniPlay object and resolves a Benchmark from either an experiment file or inline CLI arguments.
+PlyBench object and resolves a Benchmark from either an experiment file or inline CLI arguments.
 
 All scripts operate relative to the current working directory: benchmarks read/write
 `experiments/benchmarks/` and `results/benchmarks/` under the cwd (the package's path convention)."""
@@ -8,14 +8,14 @@ from __future__ import annotations
 
 import argparse
 
-from omniplay.app import OmniPlay
-from omniplay.harness.benchmark import Benchmark
-from omniplay.llm import LLMConfig
+from plybench.app import PlyBench
+from plybench.harness.benchmark import Benchmark
+from plybench.llm import LLMConfig
 
 
-def build_op() -> OmniPlay:
+def build_op() -> PlyBench:
     # from_env self-disables providers whose keys are absent, so bot-only scripts work offline too
-    return OmniPlay(LLMConfig.from_env())
+    return PlyBench(LLMConfig.from_env())
 
 
 def add_source_args(parser: argparse.ArgumentParser) -> None:
@@ -27,7 +27,7 @@ def add_source_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--num-games", type=int, default=2, help="rounds per matchup (inline only; default 2)")
 
 
-def benchmark_from_args(op: OmniPlay, args: argparse.Namespace) -> Benchmark:
+def benchmark_from_args(op: PlyBench, args: argparse.Namespace) -> Benchmark:
     if args.experiment:
         # per-axis overrides restrict the experiment's enabled set at run time
         return Benchmark.load_experiment(op, args.experiment, game_override=args.games, player_override=args.players, opponent_override=args.opponents)

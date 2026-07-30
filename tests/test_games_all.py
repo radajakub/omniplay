@@ -9,15 +9,15 @@ from dataclasses import dataclass
 
 import pytest
 
-from omniplay.common.enums import GameResults
-from omniplay.configs.player_config import PlayerConfig
-from omniplay.configs.player_params import PlayerParams
-from omniplay.core.game import TurnBasedGame
-from omniplay.core.interface import InterfaceAction, InterfaceObservation
-from omniplay.core.prompt_adapter import PromptAdapter
-from omniplay.games.builtins import register_builtin_games
-from omniplay.player.player import Player, PlayerOutput
-from omniplay.registry import Registry
+from plybench.common.enums import GameResults
+from plybench.configs.player_config import PlayerConfig
+from plybench.configs.player_params import PlayerParams
+from plybench.core.game import TurnBasedGame
+from plybench.core.interface import InterfaceAction, InterfaceObservation
+from plybench.core.prompt_adapter import PromptAdapter
+from plybench.games.builtins import register_builtin_games
+from plybench.player.player import Player, PlayerOutput
+from plybench.registry import Registry
 
 registry = Registry()
 register_builtin_games(registry)

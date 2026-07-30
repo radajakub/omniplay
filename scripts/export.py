@@ -1,4 +1,4 @@
-"""Export a finished benchmark as a .tar.gz for the omniplay-website ingestion endpoint.
+"""Export a finished benchmark as a .tar.gz for the plybench-website ingestion endpoint.
 
 The archive contains experiment.json + results/benchmarks/ (raw games, with LLM traces flattened to the
 website's schema) + analysis/benchmarks/ (per-matchup metrics and per-round game stats, incl.

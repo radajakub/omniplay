@@ -367,11 +367,11 @@ wheels = [
 
 [[package]]
 name = "filelock"
-version = "3.32.0"
+version = "3.32.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/c0/80/8232b582c4b318b817cf1274ba74976b07b34d35ef439b3eb948f98645a1/filelock-3.32.0.tar.gz", hash = "sha256:7be2ad23a14607ccc71808e68fe30848aeace7058ace17852f68e2a68e310402", size = 213757, upload-time = "2026-07-21T13:17:42.898Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f6/57/3ba6e6cb097f85b855b00163d169f35365f44277df044dcf96d55b8f62a3/filelock-3.32.2.tar.gz", hash = "sha256:c33351e1f49cae33414acbc6d56784e6ecee82514ec90795da1161fc4836b5b8", size = 217172, upload-time = "2026-07-29T22:46:04.895Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/06/79/b4c714bef36bc4ec2beeae1e0c124f0223888cd8c6feb1cdc56038116920/filelock-3.32.0-py3-none-any.whl", hash = "sha256:d396bea984af47333ef05e50eae7eff88c84256de6112aea0ec48a233c064fe3", size = 97732, upload-time = "2026-07-21T13:17:41.55Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/e8/72f8cef9fdfeffe06213fe8508039396ee48daa0e3259457ed766173bfd6/filelock-3.32.2-py3-none-any.whl", hash = "sha256:87dd94cf281e586d135fa51132b8e3d9a598b316e90377a288663c9321036c82", size = 98830, upload-time = "2026-07-29T22:46:03.52Z" },
 ]
 
 [[package]]
@@ -403,7 +403,7 @@ requests = [
 
 [[package]]
 name = "google-genai"
-version = "2.14.0"
+version = "2.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -417,9 +417,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/dc/df/4f820054c99f29f2fe3de4a8a7c9534dd795302e4a07483a0cb07c3a29b6/google_genai-2.14.0.tar.gz", hash = "sha256:a9d1f4f362d76280f1be1340fcb3c86e63dbca128f6a4ae09d86ab47ff7148e8", size = 641055, upload-time = "2026-07-22T21:35:44.717Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/69/53/b2c9b0a74b817a393d388a2303ec4da8bda27ea744b23914480d1b024d84/google_genai-2.15.0.tar.gz", hash = "sha256:ef71bdb79ce9931bca1cf0a393c8cfb606e1075b6100fcdde02b7b467db8235d", size = 640674, upload-time = "2026-07-29T17:43:21.853Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ba/86/5ac5fb53e44cca4a6607fb917eb331fa237c65a103b9ec2e8e8acc8a42db/google_genai-2.14.0-py3-none-any.whl", hash = "sha256:ae7172cdd35695189b516b33a878e4132e5daa2dbc03a5b44cddfa8a82fad664", size = 1030738, upload-time = "2026-07-22T21:35:42.785Z" },
+    { url = "https://files.pythonhosted.org/packages/cf/86/2ef6d992955307bf525f305b44cb3e2066eb01636549607082a0407f7047/google_genai-2.15.0-py3-none-any.whl", hash = "sha256:f322a94c3c1ddb1b1cc536086708f5f8e13101347d062f63dcd7947b598c1d16", size = 1030459, upload-time = "2026-07-29T17:43:20.286Z" },
 ]
 
 [[package]]
@@ -920,8 +920,72 @@ wheels = [
 ]
 
 [[package]]
-name = "omniplay"
-version = "1.1.0"
+name = "open-spiel"
+version = "2.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "absl-py" },
+    { name = "attrs" },
+    { name = "ml-collections" },
+    { name = "numpy" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e1/40/5c0e66c3dbfc729047eaede515a578903c20528d7e8048e04bdd04b3e0fd/open_spiel-2.0.1.tar.gz", hash = "sha256:904fd9cd7244432c31f7b6345be29a065526e0f23778fc4712682bebe6ce43f3", size = 5631053, upload-time = "2026-07-17T00:47:36.696Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/40/9f/941cf1bd5aa5b21f1b7c55f96c74650d7b1154c40178efbec9bb0d73a702/open_spiel-2.0.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:5619de3ae412c8ceff9375db8dcce2b362859f007715acbac55dc42c077fdf84", size = 12914632, upload-time = "2026-07-17T00:47:01.049Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/44/0920bb0426cda774936cd6424c571cb8121bc966698662d37526a15bfcba/open_spiel-2.0.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:51eb9b2fdff999fdeb19ce98997a9374530c77a770cb81e25aa78c183a84d132", size = 15254659, upload-time = "2026-07-17T00:47:03.427Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/f1/1e44eee3e59926ddbe897f904c6e5bf694c4c472e34b7c7115a400be7213/open_spiel-2.0.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:4cda19d39990065ed20588477b5cec0309089612eea0d62dea724674b0e7ed00", size = 16048437, upload-time = "2026-07-17T00:47:05.468Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/aa/ef42cd3870b338033fa570aa99a1d3942171ff58dcaf4956523fa82593f9/open_spiel-2.0.1-cp312-cp312-win_amd64.whl", hash = "sha256:4a5061abceea20efdb230139130035f7df3109e1da26d0ac5af217e34ad7435c", size = 10434822, upload-time = "2026-07-17T00:47:22.826Z" },
+    { url = "https://files.pythonhosted.org/packages/82/98/7f30c5e129a1e23bb5b72bf4ad73042920fe304e78e8e2baf7c8e7b0ef00/open_spiel-2.0.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:6c7836cff80ab6a700e2dcc5b0cc61ec37c69a740e000d0640d2837784e13aaa", size = 12914746, upload-time = "2026-07-17T00:47:07.755Z" },
+    { url = "https://files.pythonhosted.org/packages/48/c2/f861e395899f8ccb4b594deed6a5a7d9a13fcd20bba57d7564f21b08b608/open_spiel-2.0.1-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:400cfd70950a172e17328012d387251660d184c0dff46c246cafd64aa69bd724", size = 15254510, upload-time = "2026-07-17T00:47:09.759Z" },
+    { url = "https://files.pythonhosted.org/packages/70/25/10a444a90471dd44061951b2deef5e955ba0989c8b285fc2d88f2fc37a1f/open_spiel-2.0.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:51c211d85a2d40d520c7580d0fef670b964a7374ef865496680da8895d7611c8", size = 16048552, upload-time = "2026-07-17T00:47:12.026Z" },
+    { url = "https://files.pythonhosted.org/packages/43/9a/aacdb9f77fcd1b990079de575be1d63b8d47e3b957d46597fd187a383f2b/open_spiel-2.0.1-cp313-cp313-win_amd64.whl", hash = "sha256:94b3cb38a005146faff87baaa0f2520685c8ff80c237b1cc4687c9d5c003e350", size = 10434699, upload-time = "2026-07-17T00:47:31.812Z" },
+    { url = "https://files.pythonhosted.org/packages/c3/0c/9459b20de6a8e191d4fd51f1695b8dee6865820c2857e1b86c5a2bf6bb1c/open_spiel-2.0.1-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:51bcc802fb5b19029bb429e7dc3feebb37555a63e8353191bae0d1d5cf2a8cbf", size = 12431802, upload-time = "2026-07-17T00:47:14.247Z" },
+    { url = "https://files.pythonhosted.org/packages/84/42/8856de726d42249c9066679bf314425826b88308b0ed0bb10ca43e0a5d3d/open_spiel-2.0.1-cp314-cp314-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:8f8d8ead391551e9c5557ed75a9779d1a780cf866cca7577990914245a3782b5", size = 15261622, upload-time = "2026-07-17T00:47:16.457Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/ab/22d1926afa727a474e9c440192d2fa51e1d474b3c46ba0b4ba98b0bc87aa/open_spiel-2.0.1-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:3f695b6b4d437ef969c19b17b35e865397f7cb76c4614bce0c5868872c3534be", size = 16050646, upload-time = "2026-07-17T00:47:18.531Z" },
+    { url = "https://files.pythonhosted.org/packages/51/d2/37cafa0ab9b7e3024c97b44c0ea59eb686277ad3694097c09f6f4ff30dd8/open_spiel-2.0.1-cp314-cp314-win_amd64.whl", hash = "sha256:3d2d845e852641c67bcc5eef62fac21f7ee75bac892aa49d9b6db2f7a947a469", size = 10512514, upload-time = "2026-07-17T00:47:34.292Z" },
+]
+
+[[package]]
+name = "openai"
+version = "2.50.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "distro" },
+    { name = "httpx" },
+    { name = "jiter" },
+    { name = "pydantic" },
+    { name = "sniffio" },
+    { name = "tqdm" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d8/f5/e7735f2af272ee179a287911a698b3cbdb59d7a4ac4874571363adf1e4de/openai-2.50.0.tar.gz", hash = "sha256:5128f7caf4a6b01aefd6e7e93efe170a2c3427b8de286b9af5cdff3aa47e02c8", size = 1081965, upload-time = "2026-07-28T22:16:31.674Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/00/ca/db315b3bb748c26c644a3f85b7d509e774354d6518d47080b1446005ee41/openai-2.50.0-py3-none-any.whl", hash = "sha256:90bdddcc5a2fa529b350fac9c5780d87e5c361dcc6090ab57b0d470b0d7af7fa", size = 1650721, upload-time = "2026-07-28T22:16:29.48Z" },
+]
+
+[[package]]
+name = "packaging"
+version = "26.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d7/f1/e7a6dd94a8d4a5626c03e4e99c87f241ba9e350cd9e6d75123f992427270/packaging-26.2.tar.gz", hash = "sha256:ff452ff5a3e828ce110190feff1178bb1f2ea2281fa2075aadb987c2fb221661", size = 228134, upload-time = "2026-04-24T20:15:23.917Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl", hash = "sha256:5fc45236b9446107ff2415ce77c807cee2862cb6fac22b8a73826d0693b0980e", size = 100195, upload-time = "2026-04-24T20:15:22.081Z" },
+]
+
+[[package]]
+name = "pluggy"
+version = "1.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f9/e2/3e91f31a7d2b083fe6ef3fa267035b518369d9511ffab804f839851d2779/pluggy-1.6.0.tar.gz", hash = "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3", size = 69412, upload-time = "2025-05-15T12:30:07.975Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl", hash = "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746", size = 20538, upload-time = "2025-05-15T12:30:06.134Z" },
+]
+
+[[package]]
+name = "plybench"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "numpy" },
@@ -987,70 +1051,6 @@ dev = [
     { name = "openai", specifier = ">=2.48.0" },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "ruff", specifier = ">=0.16.0" },
-]
-
-[[package]]
-name = "open-spiel"
-version = "2.0.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "absl-py" },
-    { name = "attrs" },
-    { name = "ml-collections" },
-    { name = "numpy" },
-    { name = "scipy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/e1/40/5c0e66c3dbfc729047eaede515a578903c20528d7e8048e04bdd04b3e0fd/open_spiel-2.0.1.tar.gz", hash = "sha256:904fd9cd7244432c31f7b6345be29a065526e0f23778fc4712682bebe6ce43f3", size = 5631053, upload-time = "2026-07-17T00:47:36.696Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/40/9f/941cf1bd5aa5b21f1b7c55f96c74650d7b1154c40178efbec9bb0d73a702/open_spiel-2.0.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:5619de3ae412c8ceff9375db8dcce2b362859f007715acbac55dc42c077fdf84", size = 12914632, upload-time = "2026-07-17T00:47:01.049Z" },
-    { url = "https://files.pythonhosted.org/packages/f5/44/0920bb0426cda774936cd6424c571cb8121bc966698662d37526a15bfcba/open_spiel-2.0.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:51eb9b2fdff999fdeb19ce98997a9374530c77a770cb81e25aa78c183a84d132", size = 15254659, upload-time = "2026-07-17T00:47:03.427Z" },
-    { url = "https://files.pythonhosted.org/packages/e3/f1/1e44eee3e59926ddbe897f904c6e5bf694c4c472e34b7c7115a400be7213/open_spiel-2.0.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:4cda19d39990065ed20588477b5cec0309089612eea0d62dea724674b0e7ed00", size = 16048437, upload-time = "2026-07-17T00:47:05.468Z" },
-    { url = "https://files.pythonhosted.org/packages/8d/aa/ef42cd3870b338033fa570aa99a1d3942171ff58dcaf4956523fa82593f9/open_spiel-2.0.1-cp312-cp312-win_amd64.whl", hash = "sha256:4a5061abceea20efdb230139130035f7df3109e1da26d0ac5af217e34ad7435c", size = 10434822, upload-time = "2026-07-17T00:47:22.826Z" },
-    { url = "https://files.pythonhosted.org/packages/82/98/7f30c5e129a1e23bb5b72bf4ad73042920fe304e78e8e2baf7c8e7b0ef00/open_spiel-2.0.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:6c7836cff80ab6a700e2dcc5b0cc61ec37c69a740e000d0640d2837784e13aaa", size = 12914746, upload-time = "2026-07-17T00:47:07.755Z" },
-    { url = "https://files.pythonhosted.org/packages/48/c2/f861e395899f8ccb4b594deed6a5a7d9a13fcd20bba57d7564f21b08b608/open_spiel-2.0.1-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:400cfd70950a172e17328012d387251660d184c0dff46c246cafd64aa69bd724", size = 15254510, upload-time = "2026-07-17T00:47:09.759Z" },
-    { url = "https://files.pythonhosted.org/packages/70/25/10a444a90471dd44061951b2deef5e955ba0989c8b285fc2d88f2fc37a1f/open_spiel-2.0.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:51c211d85a2d40d520c7580d0fef670b964a7374ef865496680da8895d7611c8", size = 16048552, upload-time = "2026-07-17T00:47:12.026Z" },
-    { url = "https://files.pythonhosted.org/packages/43/9a/aacdb9f77fcd1b990079de575be1d63b8d47e3b957d46597fd187a383f2b/open_spiel-2.0.1-cp313-cp313-win_amd64.whl", hash = "sha256:94b3cb38a005146faff87baaa0f2520685c8ff80c237b1cc4687c9d5c003e350", size = 10434699, upload-time = "2026-07-17T00:47:31.812Z" },
-    { url = "https://files.pythonhosted.org/packages/c3/0c/9459b20de6a8e191d4fd51f1695b8dee6865820c2857e1b86c5a2bf6bb1c/open_spiel-2.0.1-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:51bcc802fb5b19029bb429e7dc3feebb37555a63e8353191bae0d1d5cf2a8cbf", size = 12431802, upload-time = "2026-07-17T00:47:14.247Z" },
-    { url = "https://files.pythonhosted.org/packages/84/42/8856de726d42249c9066679bf314425826b88308b0ed0bb10ca43e0a5d3d/open_spiel-2.0.1-cp314-cp314-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:8f8d8ead391551e9c5557ed75a9779d1a780cf866cca7577990914245a3782b5", size = 15261622, upload-time = "2026-07-17T00:47:16.457Z" },
-    { url = "https://files.pythonhosted.org/packages/0e/ab/22d1926afa727a474e9c440192d2fa51e1d474b3c46ba0b4ba98b0bc87aa/open_spiel-2.0.1-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:3f695b6b4d437ef969c19b17b35e865397f7cb76c4614bce0c5868872c3534be", size = 16050646, upload-time = "2026-07-17T00:47:18.531Z" },
-    { url = "https://files.pythonhosted.org/packages/51/d2/37cafa0ab9b7e3024c97b44c0ea59eb686277ad3694097c09f6f4ff30dd8/open_spiel-2.0.1-cp314-cp314-win_amd64.whl", hash = "sha256:3d2d845e852641c67bcc5eef62fac21f7ee75bac892aa49d9b6db2f7a947a469", size = 10512514, upload-time = "2026-07-17T00:47:34.292Z" },
-]
-
-[[package]]
-name = "openai"
-version = "2.50.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "anyio" },
-    { name = "distro" },
-    { name = "httpx" },
-    { name = "jiter" },
-    { name = "pydantic" },
-    { name = "sniffio" },
-    { name = "tqdm" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/d8/f5/e7735f2af272ee179a287911a698b3cbdb59d7a4ac4874571363adf1e4de/openai-2.50.0.tar.gz", hash = "sha256:5128f7caf4a6b01aefd6e7e93efe170a2c3427b8de286b9af5cdff3aa47e02c8", size = 1081965, upload-time = "2026-07-28T22:16:31.674Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/00/ca/db315b3bb748c26c644a3f85b7d509e774354d6518d47080b1446005ee41/openai-2.50.0-py3-none-any.whl", hash = "sha256:90bdddcc5a2fa529b350fac9c5780d87e5c361dcc6090ab57b0d470b0d7af7fa", size = 1650721, upload-time = "2026-07-28T22:16:29.48Z" },
-]
-
-[[package]]
-name = "packaging"
-version = "26.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d7/f1/e7a6dd94a8d4a5626c03e4e99c87f241ba9e350cd9e6d75123f992427270/packaging-26.2.tar.gz", hash = "sha256:ff452ff5a3e828ce110190feff1178bb1f2ea2281fa2075aadb987c2fb221661", size = 228134, upload-time = "2026-04-24T20:15:23.917Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl", hash = "sha256:5fc45236b9446107ff2415ce77c807cee2862cb6fac22b8a73826d0693b0980e", size = 100195, upload-time = "2026-04-24T20:15:22.081Z" },
-]
-
-[[package]]
-name = "pluggy"
-version = "1.6.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f9/e2/3e91f31a7d2b083fe6ef3fa267035b518369d9511ffab804f839851d2779/pluggy-1.6.0.tar.gz", hash = "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3", size = 69412, upload-time = "2025-05-15T12:30:07.975Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl", hash = "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746", size = 20538, upload-time = "2025-05-15T12:30:06.134Z" },
 ]
 
 [[package]]

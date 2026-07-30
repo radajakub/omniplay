@@ -1,4 +1,4 @@
-"""The website export translates a finished benchmark into the omniplay-website ingestion layout:
+"""The website export translates a finished benchmark into the plybench-website ingestion layout:
 a wrapped .tar.gz of experiment.json + results/ (flat LLM step fields) + analysis/ (flat metric keys,
 per-round game stats). Mirrors what backend/.../ingestion.service.ts parses."""
 
@@ -10,17 +10,17 @@ import json
 import tarfile
 from pathlib import Path
 
-from omniplay.app import OmniPlay
-from omniplay.harness.benchmark import Benchmark
-from omniplay.llm import LLMConfig
-from omniplay.trackers.game_tracker import GameStep, GameTracker
+from plybench.app import PlyBench
+from plybench.harness.benchmark import Benchmark
+from plybench.llm import LLMConfig
+from plybench.trackers.game_tracker import GameStep, GameTracker
 
 _spec = importlib.util.spec_from_file_location("_website_export", Path(__file__).parent.parent / "scripts" / "_website_export.py")
 assert _spec is not None and _spec.loader is not None
 export = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(export)
 
-op = OmniPlay(LLMConfig())
+op = PlyBench(LLMConfig())
 registry = op.registry
 
 # the flat metric keys the website's matchupMetricsToDto requires (requireCi throws if any is missing)
@@ -77,7 +77,7 @@ def _tiny_benchmark(tmp_path, monkeypatch, players, opponents, num_games=2):
 def test_analysis_metadata_has_required_flat_keys(tmp_path, monkeypatch):
     benchmark = _tiny_benchmark(tmp_path, monkeypatch, ["optimal:stochastic=True"], ["random:distribution=uniform"])
     tracker = benchmark.get_results().trackers[0]
-    from omniplay.analysis.stats.compute import compute_matchup_stats
+    from plybench.analysis.stats.compute import compute_matchup_stats
 
     payload = export.analysis_metadata_json(compute_matchup_stats(tracker, registry))
     combined = payload["metrics"]["combined"]

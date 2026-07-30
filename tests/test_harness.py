@@ -8,21 +8,21 @@ import asyncio
 import json
 from dataclasses import dataclass
 
-from omniplay.app import OmniPlay
-from omniplay.callbacks.benchmark_callbacks import BenchmarkCallbacks
-from omniplay.callbacks.game_callbacks import GameCallbacks
-from omniplay.common.paths import BenchmarkPathBuilder
-from omniplay.configs.benchmark_config import BenchmarkConfig, ToggleItem
-from omniplay.configs.matchup import Matchup
-from omniplay.configs.player_params import PlayerParams
-from omniplay.harness.benchmark import Benchmark
-from omniplay.harness.matchup import run_matchup
-from omniplay.llm import LLMConfig
-from omniplay.player.player import Player, PlayerOutput
-from omniplay.player.spec import PlayerSpec
+from plybench.app import PlyBench
+from plybench.callbacks.benchmark_callbacks import BenchmarkCallbacks
+from plybench.callbacks.game_callbacks import GameCallbacks
+from plybench.common.paths import BenchmarkPathBuilder
+from plybench.configs.benchmark_config import BenchmarkConfig, ToggleItem
+from plybench.configs.matchup import Matchup
+from plybench.configs.player_params import PlayerParams
+from plybench.harness.benchmark import Benchmark
+from plybench.harness.matchup import run_matchup
+from plybench.llm import LLMConfig
+from plybench.player.player import Player, PlayerOutput
+from plybench.player.spec import PlayerSpec
 
 # LLMConfig() has no providers, so the whole run is offline (only bot players)
-op = OmniPlay(LLMConfig())
+op = PlyBench(LLMConfig())
 registry = op.registry
 
 
@@ -182,7 +182,7 @@ def test_external_agent_plays_through_registry(tmp_path, monkeypatch):
             return ""
 
     # a fresh op so this registration does not leak into the module-level registry
-    agent_op = OmniPlay(LLMConfig())
+    agent_op = PlyBench(LLMConfig())
     agent_op.registry.register_player(PlayerSpec("firstmove", FirstMoveParams, lambda game, cfg, pid: FirstMovePlayer(cfg, pid)))
     assert "firstmove" in agent_op.registry.player_keys()
 

@@ -7,14 +7,14 @@ from dataclasses import dataclass
 
 import pytest
 
-from omniplay.common.enums import GameResults
-from omniplay.configs.player_config import PlayerConfig
-from omniplay.configs.player_params import PlayerParams
-from omniplay.player.player import PlayerOutput
-from omniplay.player.spec import PlayerSpec
-from omniplay.registry import Registry
-from omniplay.trackers.game_tracker import GameTracker
-from omniplay.trackers.player_tracker import PlayerTracker
+from plybench.common.enums import GameResults
+from plybench.configs.player_config import PlayerConfig
+from plybench.configs.player_params import PlayerParams
+from plybench.player.player import PlayerOutput
+from plybench.player.spec import PlayerSpec
+from plybench.registry import Registry
+from plybench.trackers.game_tracker import GameTracker
+from plybench.trackers.player_tracker import PlayerTracker
 
 
 # --- stubs -----------------------------------------------------------------------------------

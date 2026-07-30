@@ -1,7 +1,7 @@
-"""Translate a finished benchmark (new omniplay schema) into the .tar.gz layout the omniplay-website
+"""Translate a finished benchmark (new plybench schema) into the .tar.gz layout the plybench-website
 ingestion endpoint expects, and pack it.
 
-The website mirrors the ORIGINAL omniplay `to_dict()` shapes, which differ from this refactored package
+The website mirrors the ORIGINAL plybench `to_dict()` shapes, which differ from this refactored package
 in three places — handled here so the website stays untouched:
   1. GameStep: the site reads FLAT `full_model_output` / `reasoning_trace` / `system_message` /
      `prompt_message`; the new schema nests them under `data` (with `full_output`). We unfold them.
@@ -23,17 +23,17 @@ import json
 import tarfile
 from typing import Any
 
-from omniplay.analysis.replay import TurnBasedReplayer, build_replayer
-from omniplay.analysis.statistics.bundle import mean_bundle, ratio_bundle
-from omniplay.analysis.statistics.distribution import Distribution
-from omniplay.analysis.stats.compute import compute_matchup_stats
-from omniplay.analysis.stats.matchup_stats import MatchupMetrics, MatchupStats
-from omniplay.app import OmniPlay
-from omniplay.common.enums import GameResults, MetricName, StateClass
-from omniplay.configs.player_config import PlayerConfig
-from omniplay.harness.benchmark import Benchmark
-from omniplay.trackers.game_tracker import GameTracker
-from omniplay.trackers.result_tracker import ResultTracker
+from plybench.analysis.replay import TurnBasedReplayer, build_replayer
+from plybench.analysis.statistics.bundle import mean_bundle, ratio_bundle
+from plybench.analysis.statistics.distribution import Distribution
+from plybench.analysis.stats.compute import compute_matchup_stats
+from plybench.analysis.stats.matchup_stats import MatchupMetrics, MatchupStats
+from plybench.app import PlyBench
+from plybench.common.enums import GameResults, MetricName, StateClass
+from plybench.configs.player_config import PlayerConfig
+from plybench.harness.benchmark import Benchmark
+from plybench.trackers.game_tracker import GameTracker
+from plybench.trackers.result_tracker import ResultTracker
 
 # new MetricName -> the flat key the website requires (score is intentionally absent)
 _METRIC_KEY = {
@@ -172,7 +172,7 @@ def _relative_dir(kind: str, tracker: ResultTracker) -> str:
     return f"{kind}/benchmarks/{tracker.experiment}/{game_dir}/{matchup_dir}"
 
 
-def build_archive(op: OmniPlay, benchmark: Benchmark, out_path: str, name: str, confidence: float = 0.95, include_fails: bool = False) -> dict[str, int]:
+def build_archive(op: PlyBench, benchmark: Benchmark, out_path: str, name: str, confidence: float = 0.95, include_fails: bool = False) -> dict[str, int]:
     results = benchmark.get_results()
     counts = {"matchups": 0, "games": 0, "game_stats": 0}
 

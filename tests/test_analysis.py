@@ -7,16 +7,16 @@ from __future__ import annotations
 import asyncio
 import json
 
-from omniplay.analysis import BenchmarkAnalysis
-from omniplay.analysis.statistics.bundle import mean_bundle, ratio_bundle
-from omniplay.analysis.statistics.distribution import Distribution
-from omniplay.analysis.statistics.intervals import bootstrap_ci, sem_ci, t_ci, wilson_ci
-from omniplay.app import OmniPlay
-from omniplay.common.enums import MetricName
-from omniplay.harness.benchmark import Benchmark
-from omniplay.llm import LLMConfig
+from plybench.analysis import BenchmarkAnalysis
+from plybench.analysis.statistics.bundle import mean_bundle, ratio_bundle
+from plybench.analysis.statistics.distribution import Distribution
+from plybench.analysis.statistics.intervals import bootstrap_ci, sem_ci, t_ci, wilson_ci
+from plybench.app import PlyBench
+from plybench.common.enums import MetricName
+from plybench.harness.benchmark import Benchmark
+from plybench.llm import LLMConfig
 
-op = OmniPlay(LLMConfig())
+op = PlyBench(LLMConfig())
 registry = op.registry
 
 _FIELD_METRICS = {

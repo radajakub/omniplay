@@ -219,7 +219,7 @@ __marimo__/
 
 .DS_Store
 
-analysis/
-results/
-cache/
-plots/
+/analysis/
+/results/
+/cache/
+/plots/
