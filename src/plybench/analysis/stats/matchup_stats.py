@@ -8,7 +8,7 @@ from plybench.common.enums import MetricName
 from plybench.configs.game_config import GameConfig
 from plybench.configs.player_config import PlayerConfig
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 @dataclass(frozen=True)
@@ -28,8 +28,8 @@ class MatchupMetrics:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            'n_games': self.n_games,
-            'metrics': {name.value: bundle.to_dict() for name, bundle in self.metrics.items()},
+            "n_games": self.n_games,
+            "metrics": {name.value: bundle.to_dict() for name, bundle in self.metrics.items()},
         }
 
 
@@ -45,15 +45,15 @@ class MatchupStats:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            'experiment': self.experiment,
-            'i_config': self.i.to_string(),
-            'o_config': self.o.to_string(),
-            'game_config': self.game.to_string(),
-            'n_games': self.n_games,
-            'completed': self.completed,
-            'metrics': {
-                'combined': self.metrics.combined.to_dict(),
-                'i_first': self.metrics.i_first.to_dict(),
-                'i_second': self.metrics.i_second.to_dict(),
+            "experiment": self.experiment,
+            "i_config": self.i.to_string(),
+            "o_config": self.o.to_string(),
+            "game_config": self.game.to_string(),
+            "n_games": self.n_games,
+            "completed": self.completed,
+            "metrics": {
+                "combined": self.metrics.combined.to_dict(),
+                "i_first": self.metrics.i_first.to_dict(),
+                "i_second": self.metrics.i_second.to_dict(),
             },
         }

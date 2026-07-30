@@ -46,18 +46,18 @@ class TurnBasedReplayer:
 
             verdict = self._judge.optimal(pid, observation)
             if verdict is None:
-                raise ValueError(f'No judge verdict for player {pid} at state {observation.os_observation.state}')
+                raise ValueError(f"No judge verdict for player {pid} at state {observation.os_observation.state}")
 
             state_class = verdict.classify_state([move.number for move in moves], loss_value)
 
-            if 'FAIL' in step.move:
+            if "FAIL" in step.move:
                 # a failed (illegal / malformed) move: worst-case regret, definitely not optimal
                 is_optimal = False
                 regret = float(verdict.V() - loss_value)
             else:
                 selected = next((move for move in moves if move.to_llm().string == step.move), None)
                 if selected is None:
-                    raise ValueError(f'Recorded move not found among legal moves: {step.move}')
+                    raise ValueError(f"Recorded move not found among legal moves: {step.move}")
                 is_optimal = bool(verdict.check_optimal(selected.number))
                 regret = float(verdict.V() - verdict.Q(selected.number))
 
@@ -74,7 +74,7 @@ def build_replayer(registry: Registry, game_config: GameConfig) -> TurnBasedRepl
     """Build a replayer for a (solvable) game: a fresh engine plus an optimal judge whose minimax cache
     is solved/loaded on initialize_policy. Only meaningful for `registry.solvable(game_config.key)`."""
     engine = registry.build_engine(game_config)
-    judge = registry.build_player(engine.game, registry.player_config('optimal:'), 'i')
+    judge = registry.build_player(engine.game, registry.player_config("optimal:"), "i")
     judge.initialize_policy(engine.game, engine.prompt_adapter)
     return TurnBasedReplayer(engine, cast(Judgeable, judge))
 
