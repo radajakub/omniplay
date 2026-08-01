@@ -8,6 +8,7 @@ against each other across a matrix of games and records every step for later ana
 [plybench.jakubrada.com](https://plybench.jakubrada.com).
 
 [![CI](https://github.com/radajakub/plybench/actions/workflows/ci.yml/badge.svg)](https://github.com/radajakub/plybench/actions/workflows/ci.yml)
+[![Publish](https://github.com/radajakub/plybench/actions/workflows/publish.yml/badge.svg)](https://github.com/radajakub/plybench/actions/workflows/publish.yml)
 
 ## Installation
 
