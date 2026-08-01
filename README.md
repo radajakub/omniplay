@@ -7,6 +7,8 @@ against each other across a matrix of games and records every step for later ana
 **Live results** for a selection of models and games are available at
 [plybench.jakubrada.com](https://plybench.jakubrada.com).
 
+[![CI](https://github.com/radajakub/plybench/actions/workflows/ci.yml/badge.svg)](https://github.com/radajakub/plybench/actions/workflows/ci.yml)
+
 ## Installation
 
 ```bash
