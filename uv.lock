@@ -1006,6 +1006,9 @@ all = [
 gemini = [
     { name = "google-genai" },
 ]
+grok = [
+    { name = "openai" },
+]
 huggingface = [
     { name = "torch" },
     { name = "transformers" },
@@ -1032,6 +1035,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.5.1" },
     { name = "open-spiel", specifier = ">=2.0.1" },
     { name = "openai", marker = "extra == 'all'", specifier = ">=2.48.0" },
+    { name = "openai", marker = "extra == 'grok'", specifier = ">=2.48.0" },
     { name = "openai", marker = "extra == 'metacentrum'", specifier = ">=2.48.0" },
     { name = "openai", marker = "extra == 'openai'", specifier = ">=2.48.0" },
     { name = "pydantic", specifier = ">=2.13.4" },
@@ -1043,7 +1047,7 @@ requires-dist = [
     { name = "transformers", marker = "extra == 'all'", specifier = ">=4.44.0" },
     { name = "transformers", marker = "extra == 'huggingface'", specifier = ">=4.44.0" },
 ]
-provides-extras = ["openai", "gemini", "metacentrum", "huggingface", "all"]
+provides-extras = ["openai", "gemini", "grok", "metacentrum", "huggingface", "all"]
 
 [package.metadata.requires-dev]
 dev = [

@@ -42,6 +42,7 @@ dependencies = [
 [project.optional-dependencies]
 openai = ["openai>=2.48.0"]
 gemini = ["google-genai>=2.14.0"]
+grok = ["openai>=2.48.0"]
 # metacentrum is an OpenAI-compatible endpoint and reuses the openai SDK
 metacentrum = ["openai>=2.48.0"]
 huggingface = ["torch>=2.4.0", "transformers>=4.44.0"]
