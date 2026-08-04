@@ -17,7 +17,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from _shared import add_source_args, benchmark_from_args, build_op  # noqa: E402
 
-from plybench.callbacks.benchmark_callbacks import console_benchmark_callbacks  # noqa: E402
+from plybench.callbacks.benchmark_callbacks import BenchmarkCallbacks  # noqa: E402
+from plybench.callbacks.console_callbacks import console_benchmark_callbacks  # noqa: E402
+from plybench.callbacks.notification_callbacks import notification_benchmark_callbacks  # noqa: E402
 
 
 def main() -> None:
@@ -25,12 +27,19 @@ def main() -> None:
     add_source_args(parser)
     parser.add_argument("--sync", action="store_true", help="run matchups sequentially instead of concurrently")
     parser.add_argument("--concurrency", type=int, help="max concurrent rounds per matchup (default: all missing)")
+    parser.add_argument("--notify", action="store_true", help="push a notification on each matchup end + a final summary (needs NTFY_URL)")
     args = parser.parse_args()
 
-    op = build_op()
+    op = build_op(notif_enabled=args.notify)
     benchmark = benchmark_from_args(op, args)
 
-    results = asyncio.run(benchmark.run(sync=args.sync, concurrency=args.concurrency, benchmark_callbacks=console_benchmark_callbacks()))
+    callbacks = console_benchmark_callbacks()
+    if args.notify:
+        if not op.notif.configured:
+            print("warning: --notify set but NTFY_URL is not configured; notifications will be skipped")
+        callbacks = BenchmarkCallbacks.combine(callbacks, notification_benchmark_callbacks(op.notif, benchmark.experiment))
+
+    results = asyncio.run(benchmark.run(sync=args.sync, concurrency=args.concurrency, benchmark_callbacks=callbacks))
 
     complete = sum(1 for tracker in results.trackers if tracker.is_complete())
     print(f"\ndone: {complete}/{len(results.trackers)} matchups complete under results/benchmarks/{benchmark.experiment}/")
