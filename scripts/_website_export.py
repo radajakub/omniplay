@@ -5,9 +5,9 @@ The website mirrors the ORIGINAL plybench `to_dict()` shapes, which differ from 
 in three places — handled here so the website stays untouched:
   1. GameStep: the site reads FLAT `full_model_output` / `reasoning_trace` / `system_message` /
      `prompt_message`; the new schema nests them under `data` (with `full_output`). We unfold them.
-  2. analysis metadata: the site wants each split as a flat object with fixed keys (and
-     `player_moves_per_game`, `total_input_tokens`, `total_output_tokens`); the new schema keeps a
-     generic `metrics` map, names it `moves_per_game`, and carries an extra `score` (dropped).
+  2. analysis metadata: the site wants each split as a flat object of metric keys (plus
+     `total_input_tokens` / `total_output_tokens`); the new schema keeps a generic `metrics` map. We
+     flatten it and rename `moves_per_game` to `player_moves_per_game`.
   3. experiment.json: the site reads a single `baseline` string (informational); we join the opponents.
 
 Archive layout (single wrapper dir, which the site strips):
@@ -35,23 +35,10 @@ from plybench.harness.benchmark import Benchmark
 from plybench.trackers.game_tracker import GameTracker
 from plybench.trackers.result_tracker import ResultTracker
 
-# new MetricName -> the flat key the website requires (score is intentionally absent)
-_METRIC_KEY = {
-    MetricName.WIN_RATE: "win_rate",
-    MetricName.DRAW_RATE: "draw_rate",
-    MetricName.LOSS_RATE: "loss_rate",
-    MetricName.FAIL_RATE: "fail_rate",
-    MetricName.MOVES_PER_GAME: "player_moves_per_game",
-    MetricName.INPUT_TOKENS_PER_GAME: "input_tokens_per_game",
-    MetricName.OUTPUT_TOKENS_PER_GAME: "output_tokens_per_game",
-    MetricName.INPUT_TOKENS_PER_MOVE: "input_tokens_per_move",
-    MetricName.OUTPUT_TOKENS_PER_MOVE: "output_tokens_per_move",
-}
-_OPTIONAL_METRIC_KEY = {
-    MetricName.OPTIMALITY_RATE: "optimality_rate",
-    MetricName.OPTIMALITY_RATE_NON_TRIVIAL: "optimality_rate_non_trivial",
-    MetricName.REGRET: "regret",
-}
+# Every metric is exported under its own enum value, so a newly added metric reaches the website
+# without touching this file; the website ignores keys it does not know and treats everything beyond
+# the required set as optional. Only genuine name mismatches are listed here.
+_METRIC_KEY_OVERRIDES = {MetricName.MOVES_PER_GAME: "player_moves_per_game"}
 
 
 def experiment_json(benchmark: Benchmark) -> dict[str, Any]:
@@ -96,13 +83,10 @@ def _total_tokens(bundle_per_game) -> int:
 def _metrics_json(metrics: MatchupMetrics) -> dict[str, Any]:
     by_name = metrics.metrics
     out: dict[str, Any] = {"n_games": metrics.n_games}
-    for name, key in _METRIC_KEY.items():
-        out[key] = by_name[name].to_dict()
+    for name, bundle in by_name.items():
+        out[_METRIC_KEY_OVERRIDES.get(name, name.value)] = bundle.to_dict()
     out["total_input_tokens"] = _total_tokens(by_name[MetricName.INPUT_TOKENS_PER_GAME])
     out["total_output_tokens"] = _total_tokens(by_name[MetricName.OUTPUT_TOKENS_PER_GAME])
-    for name, key in _OPTIONAL_METRIC_KEY.items():
-        if name in by_name:
-            out[key] = by_name[name].to_dict()
     return out
 
 

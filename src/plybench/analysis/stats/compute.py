@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from plybench.analysis.extractors.base import Extractor
-from plybench.analysis.extractors.quality import quality_extractors
-from plybench.analysis.extractors.suite import default_suite
+from plybench.analysis.extractors.suite import matchup_suite
 from plybench.analysis.statistics.bundle import CIBundle, mean_bundle, ratio_bundle
 from plybench.analysis.stats.matchup_stats import MatchupMetrics, MatchupStats, Split
 from plybench.common.enums import CIFamily
@@ -23,17 +22,8 @@ def _metrics(extractors: list[Extractor], games: list[GameTracker], player: Play
     return MatchupMetrics(len(games), {extractor.name: _bundle(extractor, games, player, confidence) for extractor in extractors})
 
 
-def _extractors(tracker: ResultTracker, registry: Registry | None, include_fails: bool) -> list[Extractor]:
-    extractors = default_suite(include_fails)
-    # optimality/regret need a solved minimax cache, so only for solvable games and when a registry
-    # (to build the engine + optimal judge) is supplied
-    if registry is not None and registry.solvable(tracker.game.key):
-        extractors += quality_extractors(registry, tracker.game, tracker.i)
-    return extractors
-
-
 def compute_matchup_metrics(tracker: ResultTracker, registry: Registry | None = None, confidence: float = 0.95, include_fails: bool = False) -> Split[MatchupMetrics]:
-    extractors = _extractors(tracker, registry, include_fails)
+    extractors = matchup_suite(tracker, registry, include_fails)
     games = [game for game in tracker.games if game is not None]
     player = tracker.i  # metrics are always from the analysed player's (i) POV, vs the opponent (o)
 
