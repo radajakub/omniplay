@@ -43,10 +43,11 @@ dependencies = [
 openai = ["openai>=2.48.0"]
 gemini = ["google-genai>=2.14.0"]
 grok = ["openai>=2.48.0"]
+anthropic = ["anthropic[aiohttp]>=0.120.2"]
 # metacentrum is an OpenAI-compatible endpoint and reuses the openai SDK
 metacentrum = ["openai>=2.48.0"]
 huggingface = ["torch>=2.4.0", "transformers>=4.44.0"]
-all = ["openai>=2.48.0", "google-genai>=2.14.0", "torch>=2.4.0", "transformers>=4.44.0"]
+all = ["openai>=2.48.0", "google-genai>=2.14.0", "anthropic[aiohttp]>=0.120.2", "torch>=2.4.0", "transformers>=4.44.0"]
 
 [project.urls]
 Homepage = "https://plybench.jakubrada.com"
@@ -79,4 +80,5 @@ dev = [
     # provider SDKs are optional extras; include the API-based ones so the test suite runs
     "openai>=2.48.0",
     "google-genai>=2.14.0",
+    "anthropic[aiohttp]>=0.120.2",
 ]
