@@ -92,12 +92,18 @@ OPENAI_PROJECT=...
 GEMINI_API_KEY=...
 GEMINI_PROJECT=...
 
+GROK_API_KEY=...
+GROK_BASE_URL=...   # optional, defaults to https://api.x.ai/v1
+
 CLAUDE_API_KEY=...
 
 METACENTRUM_BASE_URL=...
 METACENTRUM_API_KEY=...
 
 HF_TOKEN=...   # only for gated/private HuggingFace models
+
+NTFY_URL=...   # optional, enables progress notifications (see Notifications)
+NTFY_TOKEN=...
 ```
 
 ### HuggingFace (local models)
@@ -114,6 +120,21 @@ resp = await op.llm.embed(Provider.HUGGINGFACE, "sup-simcse-bert", ["hello"])
 
 Requesting a supported model that was not part of `hf_models` raises an error telling you to add
 it to the bootstrap list. Needs the `huggingface` extra installed.
+
+### Notifications
+
+Long benchmark runs can push progress notifications to [ntfy.sh](https://ntfy.sh) (or any
+compatible endpoint) — one message per finished matchup, with elapsed time, rounds completed and an
+ETA derived from round throughput, plus a final summary. Set `NTFY_URL` (and `NTFY_TOKEN` for
+protected topics) and opt in per run:
+
+```python
+op = PlyBench(notif_enabled=True)
+op.notif.notify("hello")  # no-op when disabled or unconfigured
+```
+
+Notifications are off unless `notif_enabled=True`, and failures are logged as warnings rather than
+interrupting the run.
 
 ## Extending PlyBench
 
@@ -248,7 +269,13 @@ uv run python scripts/run.py --name smoke \
     --players random:distribution=uniform \
     --opponents optimal:stochastic=True \
     --num-games 10
+
+# push progress notifications for a long run (needs NTFY_URL, see Notifications)
+uv run python scripts/run.py --experiment ttt --notify
 ```
+
+`run.py` logs matchup and round progress to the console as the run proceeds; rounds already
+completed by an earlier run are skipped and not logged again.
 
 The LLM matchups require the relevant provider API keys (see [Configuration](#configuration)) and will
 incur API cost; bot-vs-bot matchups run offline. Results are written under
