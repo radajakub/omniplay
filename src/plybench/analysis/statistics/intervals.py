@@ -30,7 +30,7 @@ class ConfidenceInterval(Serializable):
         return {"value": self.value, "lower": self.lower, "upper": self.upper}
 
 
-def _z(confidence: float) -> float:
+def z_score(confidence: float) -> float:
     return float(stats.norm.ppf(1 - (1 - confidence) / 2))
 
 
@@ -41,7 +41,7 @@ def wilson_ci(distribution: Distribution, confidence: float = 0.95) -> Confidenc
         return ConfidenceInterval(0.0, 0.0, 0.0)
 
     p = distribution.ratio
-    z = _z(confidence)
+    z = z_score(confidence)
     denom = 1 + z * z / n
     center = (p + z * z / (2 * n)) / denom
     half = (z / denom) * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n))
@@ -56,7 +56,7 @@ def sem_ci(distribution: Distribution, confidence: float = 0.95) -> ConfidenceIn
         return ConfidenceInterval(mean, mean, mean)
 
     se = distribution.std(ddof=1) / math.sqrt(n)
-    z = _z(confidence)
+    z = z_score(confidence)
     return ConfidenceInterval(mean, mean - z * se, mean + z * se)
 
 
