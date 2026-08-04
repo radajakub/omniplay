@@ -84,7 +84,9 @@ def test_benchmark_analysis_composes_all_metrics(tmp_path, monkeypatch):
     )
 
     combined = stats.metrics.combined
-    assert set(combined.metrics.keys()) == _FIELD_METRICS
+    # tic_tac_toe is recognisable, so the recognition-rate extractor is always present (no traces -> n=0)
+    assert set(combined.metrics.keys()) == _FIELD_METRICS | {MetricName.RECOGNITION_RATE}
+    assert combined.metrics[MetricName.RECOGNITION_RATE].value == 0.0 and combined.metrics[MetricName.RECOGNITION_RATE].n == 0
     # colour balancing over 4 rounds -> 2 where the player started, 2 where it played second
     assert combined.n_games == 4
     assert stats.metrics.i_first.n_games == 2 and stats.metrics.i_second.n_games == 2
@@ -144,13 +146,13 @@ def test_quality_metrics_for_optimal_player(tmp_path, monkeypatch):
 def test_quality_gated_on_registry_and_solvability(tmp_path, monkeypatch):
     results = _run_benchmark(tmp_path, monkeypatch, num_games=2)  # random vs random on tic_tac_toe
 
-    # no registry -> no replay -> only the field-based metrics
+    # no registry -> no replay -> the field-based metrics plus recognition rate (which needs no minimax)
     without_registry = BenchmarkAnalysis(results).matchup(
         registry.game_config("tic_tac_toe:"),
         registry.player_config("random:distribution=uniform"),
         registry.player_config("random:distribution=normal"),
     )
-    assert set(without_registry.metrics.combined.metrics.keys()) == _FIELD_METRICS
+    assert set(without_registry.metrics.combined.metrics.keys()) == _FIELD_METRICS | {MetricName.RECOGNITION_RATE}
 
     # with a registry, a solvable game gains the quality metrics
     with_registry = BenchmarkAnalysis(results, op.registry).matchup(

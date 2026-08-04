@@ -94,3 +94,5 @@ class MetricName(ExtendedEnum):
     OPTIMALITY_RATE = "optimality_rate"
     OPTIMALITY_RATE_NON_TRIVIAL = "optimality_rate_non_trivial"
     REGRET = "regret"
+    # produced only for recognisable games from reasoning traces (Phase 6c)
+    RECOGNITION_RATE = "recognition_rate"

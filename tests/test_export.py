@@ -85,7 +85,11 @@ def test_analysis_metadata_has_required_flat_keys(tmp_path, monkeypatch):
     assert _REQUIRED_METRIC_KEYS <= set(combined.keys())
     # tic-tac-toe is solvable -> quality present; the optimal player is always optimal
     assert combined["optimality_rate"]["value"] == 1.0 and combined["regret"]["value"] == 0.0
-    assert "moves_per_game" not in combined and "score" not in combined  # renamed / dropped
+    # tic-tac-toe is recognisable -> the website's optional recognition_rate is filled in
+    assert "recognition_rate" in combined
+    # renamed to the key the website reads; everything else is passed through under its own name
+    assert "moves_per_game" not in combined and "player_moves_per_game" in combined
+    assert "score" in combined  # unknown to the website, which ignores it
     assert isinstance(combined["total_input_tokens"], int)
 
 
