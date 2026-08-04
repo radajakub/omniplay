@@ -32,6 +32,10 @@ def _console_callbacks() -> GameCallbacks:
             print(observation)
 
     def after(player: Player, output: PlayerOutput, step: GameStep) -> None:
+        if output.reasoning_trace:
+            print("<reasoning_trace>")
+            print(output.reasoning_trace)
+            print("<reasoning_trace/>")
         print(f"  -> {step.move}")
 
     def end(tracker: GameTracker, results: tuple[GameResults, GameResults]) -> None:
