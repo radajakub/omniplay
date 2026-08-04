@@ -31,7 +31,8 @@
 
     { "value": "llm:actions:text:metacentrum:gpt-oss-120b:thinking_enabled=True,reasoning_effort=high", "enabled": true },
     { "value": "llm:actions:text:metacentrum:qwen-3.5-122b:thinking_enabled=True", "enabled": true },
-    { "value": "llm:actions:text:metacentrum:glm-5.2:thinking_enabled=True", "enabled": true }
+    { "value": "llm:actions:text:metacentrum:glm-5.2:thinking_enabled=True", "enabled": true },
+    { "value": "llm:actions:text:metacentrum:kimi-k3:thinking_enabled=True,reasoning_effort=max", "enabled": true }
   ],
   "num_games": 100
 }
