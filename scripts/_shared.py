@@ -13,9 +13,10 @@ from plybench.harness.benchmark import Benchmark
 from plybench.llm import LLMConfig
 
 
-def build_op() -> PlyBench:
+def build_op(notif_enabled: bool = False) -> PlyBench:
     # from_env self-disables providers whose keys are absent, so bot-only scripts work offline too
-    return PlyBench(LLMConfig.from_env())
+    # notif_enabled is passed to the PlyBench constructor, which in turn passes it to the NotificationClient constructor
+    return PlyBench(LLMConfig.from_env(), notif_enabled=notif_enabled)
 
 
 def add_source_args(parser: argparse.ArgumentParser) -> None:
