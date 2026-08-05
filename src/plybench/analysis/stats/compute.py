@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from plybench.analysis.extractors.base import Extractor
 from plybench.analysis.extractors.suite import matchup_suite
-from plybench.analysis.statistics.bundle import CIBundle, mean_bundle, ratio_bundle
+from plybench.analysis.statistics.bundle import CIBundle, bundle_for_family
 from plybench.analysis.stats.matchup_stats import MatchupMetrics, MatchupStats, Split
-from plybench.common.enums import CIFamily
 from plybench.configs.player_config import PlayerConfig
 from plybench.registry import Registry
 from plybench.trackers.game_tracker import GameTracker
@@ -12,10 +11,7 @@ from plybench.trackers.result_tracker import ResultTracker
 
 
 def _bundle(extractor: Extractor, games: list[GameTracker], player: PlayerConfig, confidence: float) -> CIBundle:
-    distribution = extractor.extract(games, player)
-    if extractor.family == CIFamily.RATIO:
-        return ratio_bundle(distribution, confidence)
-    return mean_bundle(distribution, confidence)
+    return bundle_for_family(extractor.family, extractor.extract(games, player), confidence)
 
 
 def _metrics(extractors: list[Extractor], games: list[GameTracker], player: PlayerConfig, confidence: float) -> MatchupMetrics:

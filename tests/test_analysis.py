@@ -108,8 +108,9 @@ def test_benchmark_analysis_composes_all_metrics(tmp_path, monkeypatch):
     assert score.wilson is None and score.sem is not None and score.t is not None and score.bootstrap is not None
     assert 0.0 <= score.value <= 1.0
 
-    # a tic-tac-toe player makes at least 3 moves; bots have no token concept -> 0
-    assert combined.metrics[MetricName.MOVES_PER_GAME].value >= 3
+    # the fastest possible loss (opponent wins on its 3rd move) leaves the second player 2 moves, so 2
+    # is the true floor for the per-game mean; bots have no token concept -> 0
+    assert combined.metrics[MetricName.MOVES_PER_GAME].value >= 2
     assert combined.metrics[MetricName.INPUT_TOKENS_PER_GAME].value == 0.0
     assert combined.metrics[MetricName.OUTPUT_TOKENS_PER_MOVE].value == 0.0
 
