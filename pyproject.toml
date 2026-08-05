@@ -54,6 +54,7 @@ all = ["openai>=2.48.0", "google-genai>=2.14.0", "anthropic[aiohttp]>=0.120.2", 
 Homepage = "https://plybench.jakubrada.com"
 Repository = "https://github.com/radajakub/plybench"
 Issues = "https://github.com/radajakub/plybench/issues"
+Paper = "https://arxiv.org/abs/2608.03420"
 
 [build-system]
 requires = ["hatchling"]
