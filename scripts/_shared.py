@@ -13,13 +13,13 @@ from plybench.app import PlyBench
 from plybench.common.paths import BenchmarkPathBuilder
 from plybench.harness.benchmark import Benchmark
 from plybench.harness.results import BenchmarkResults
-from plybench.llm import LLMConfig
 
 
-def build_op(notif_enabled: bool = False) -> PlyBench:
-    # from_env self-disables providers whose keys are absent, so bot-only scripts work offline too
+def build_op(notif_enabled: bool = False, concurrency: int | None = None) -> PlyBench:
+    # PlyBench's env config self-disables providers whose keys are absent, so bot-only scripts work offline too
     # notif_enabled is passed to the PlyBench constructor, which in turn passes it to the NotificationClient constructor
-    return PlyBench(LLMConfig.from_env(), notif_enabled=notif_enabled)
+    # concurrency caps in-flight requests per provider -- the only limit that maps to an API rate quota
+    return PlyBench(notif_enabled=notif_enabled, concurrency=concurrency)
 
 
 def add_source_args(parser: argparse.ArgumentParser) -> None:
