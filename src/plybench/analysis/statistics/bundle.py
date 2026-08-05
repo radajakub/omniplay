@@ -4,6 +4,7 @@ from typing import Any
 
 from plybench.analysis.statistics.distribution import Distribution
 from plybench.analysis.statistics.intervals import ConfidenceInterval, bootstrap_ci, sem_ci, t_ci, wilson_ci
+from plybench.common.enums import CIFamily
 from plybench.common.serializable import Serializable
 
 
@@ -54,3 +55,13 @@ def mean_bundle(distribution: Distribution, confidence: float = 0.95) -> CIBundl
         t=t_ci(distribution, confidence),
         bootstrap=bootstrap_ci(distribution, confidence),
     )
+
+
+def bundle_for_family(family: CIFamily, distribution: Distribution, confidence: float = 0.95) -> CIBundle:
+    match family:
+        case CIFamily.RATIO:
+            return ratio_bundle(distribution, confidence)
+        case CIFamily.MEAN:
+            return mean_bundle(distribution, confidence)
+        case _:
+            raise ValueError(f"Unknown CI family: {family}")

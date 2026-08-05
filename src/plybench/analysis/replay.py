@@ -15,11 +15,16 @@ from plybench.trackers.game_tracker import GameStep, GameTracker
 
 
 @dataclass
-class _JudgedStep:
+class JudgedStep:
     step: GameStep
     state_class: StateClass
     is_optimal: bool
     regret: float
+    n_legal: int  # branching factor at this state
+    n_optimal: int  # size of the solver's optimal-action set at this state
+
+    def to_stats(self) -> StepStats:
+        return StepStats(self.step.seq, self.step.input_tokens, self.step.output_tokens, self.state_class, self.is_optimal, self.regret)
 
 
 class TurnBasedReplayer:
@@ -31,7 +36,7 @@ class TurnBasedReplayer:
         self._engine = engine
         self._judge = judge
 
-    def _iter_judged_steps(self, game_tracker: GameTracker, player_config: PlayerConfig) -> Iterator[_JudgedStep]:
+    def _iter_judged_steps(self, game_tracker: GameTracker, player_config: PlayerConfig) -> Iterator[JudgedStep]:
         game = self._engine.game
         loss_value = float(game.get_reward_range()[0])
 
@@ -49,6 +54,7 @@ class TurnBasedReplayer:
                 raise ValueError(f"No judge verdict for player {pid} at state {observation.os_observation.state}")
 
             state_class = verdict.classify_state([move.number for move in moves], loss_value)
+            n_legal, n_optimal = len(moves), len(verdict.A())
 
             if "FAIL" in step.move:
                 # a failed (illegal / malformed) move: worst-case regret, definitely not optimal
@@ -61,13 +67,15 @@ class TurnBasedReplayer:
                 is_optimal = bool(verdict.check_optimal(selected.number))
                 regret = float(verdict.V() - verdict.Q(selected.number))
 
-            yield _JudgedStep(step, state_class, is_optimal, regret)
+            yield JudgedStep(step, state_class, is_optimal, regret, n_legal, n_optimal)
 
     def replay_steps(self, game_tracker: GameTracker, player_config: PlayerConfig) -> list[StepStats]:
-        return [
-            StepStats(js.step.seq, js.step.input_tokens, js.step.output_tokens, js.state_class, js.is_optimal, js.regret)
-            for js in self._iter_judged_steps(game_tracker, player_config)
-        ]
+        return [js.to_stats() for js in self._iter_judged_steps(game_tracker, player_config)]
+
+    def replay_judged(self, game_tracker: GameTracker, player_config: PlayerConfig) -> list[JudgedStep]:
+        """Like `replay_steps` but keeps each judged move paired with its `GameStep`, so callers that
+        need the recorded reasoning trace (e.g. recognition analysis) can read it alongside the verdict."""
+        return list(self._iter_judged_steps(game_tracker, player_config))
 
 
 def build_replayer(registry: Registry, game_config: GameConfig) -> TurnBasedReplayer:
