@@ -20,6 +20,10 @@ from plybench.llm import ModelLimits, Provider
 # they are account-specific: the package ships no limits, and another tier's quotas would differ.
 # Providers and models absent from this map are governed only by the provider-wide semaphore.
 LIMITS: dict[Provider, dict[str, ModelLimits]] = {
+    Provider.MISTRAL: {
+        "mistral-medium-3.5": ModelLimits(max_concurrent=16, rps=16.67, tpm=500_000),
+        "mistral-small-4": ModelLimits(max_concurrent=8, rps=1.67, tpm=100_000),
+    },
     # every provider is gated the same way, so any of them can be paced by adding a block here; each
     # field is optional, e.g. tokens only:
     # Provider.OPENAI: {
