@@ -4,13 +4,24 @@ PlyBench is a benchmark suite for evaluating the performance of LLMs and LLM age
 fully-observable game environments. It pits players (LLMs, MCTS, optimal solvers, random, or human)
 against each other across a matrix of games and records every step for later analysis.
 
+**Paper:** [Towards Improving Sequential Decision-Making in LLM Agents via Experience
+Memory](https://arxiv.org/abs/2608.03420) (arXiv:2608.03420) — see [Citation](#citation).
+
+**Package:** [pypi.org/project/plybench](https://pypi.org/project/plybench/)
+
 **Live results** for a selection of models and games are available at
 [plybench.jakubrada.com](https://plybench.jakubrada.com).
 
+[![arXiv](https://img.shields.io/badge/arXiv-2608.03420-b31b1b.svg)](https://arxiv.org/abs/2608.03420)
+[![PyPI](https://img.shields.io/pypi/v/plybench.svg)](https://pypi.org/project/plybench/)
+[![Python](https://img.shields.io/pypi/pyversions/plybench.svg)](https://pypi.org/project/plybench/)
+[![License](https://img.shields.io/pypi/l/plybench.svg)](LICENSE)
 [![CI](https://github.com/radajakub/plybench/actions/workflows/ci.yml/badge.svg)](https://github.com/radajakub/plybench/actions/workflows/ci.yml)
 [![Publish](https://github.com/radajakub/plybench/actions/workflows/publish.yml/badge.svg)](https://github.com/radajakub/plybench/actions/workflows/publish.yml)
 
 ## Installation
+
+PlyBench is on PyPI as [`plybench`](https://pypi.org/project/plybench/):
 
 ```bash
 pip install plybench
@@ -238,7 +249,8 @@ and the scripts.
 ## Reproducing the paper results
 
 The experiment scripts under [`scripts/`](scripts/) are **not** part of the installed package — they
-are the tooling used to produce and reproduce the paper's results from a repository checkout. Use them
+are the tooling used to produce and reproduce the results of the
+[paper](https://arxiv.org/abs/2608.03420) from a repository checkout. Use them
 when you want to re-run the exact benchmarks the paper reports, extend them with new models, or run the
 analysis and export pipelines on the resulting transcripts. Everything is resumable, so an interrupted
 run continues where it left off.
@@ -291,6 +303,23 @@ uv run python scripts/play.py --game tic_tac_toe: --i human: --o optimal:stochas
 
 The full result set is large (tens of thousands of game transcripts) and is not stored in this
 repository. <!-- TODO: link the archived dataset (Zenodo DOI / Hugging Face) once published. -->
+
+## Citation
+
+If you use PlyBench in your research, please cite the paper (arXiv preprint for now — this entry will
+be updated once the proceedings version is out):
+
+```bibtex
+@misc{rada2026plybench,
+  title         = {Towards Improving Sequential Decision-Making in LLM Agents via Experience Memory},
+  author        = {Rada, Jakub and Lis{\'y}, Viliam},
+  year          = {2026},
+  eprint        = {2608.03420},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2608.03420}
+}
+```
 
 ## License
 
