@@ -45,10 +45,11 @@ openai = ["openai>=2.48.0"]
 gemini = ["google-genai>=2.14.0"]
 grok = ["openai>=2.48.0"]
 anthropic = ["anthropic[aiohttp]>=0.120.2"]
+mistral = ["mistralai>=2.9.1"]
 # metacentrum is an OpenAI-compatible endpoint and reuses the openai SDK
 metacentrum = ["openai>=2.48.0"]
 huggingface = ["torch>=2.4.0", "transformers>=4.44.0"]
-all = ["openai>=2.48.0", "google-genai>=2.14.0", "anthropic[aiohttp]>=0.120.2", "torch>=2.4.0", "transformers>=4.44.0"]
+all = ["openai>=2.48.0", "google-genai>=2.14.0", "anthropic[aiohttp]>=0.120.2", "mistralai>=2.9.1", "torch>=2.4.0", "transformers>=4.44.0"]
 
 [project.urls]
 Homepage = "https://plybench.jakubrada.com"
@@ -83,4 +84,5 @@ dev = [
     "openai>=2.48.0",
     "google-genai>=2.14.0",
     "anthropic[aiohttp]>=0.120.2",
+    "mistralai>=2.9.1",
 ]
