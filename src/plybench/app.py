@@ -8,11 +8,12 @@ from plybench.registry import Registry
 
 
 class PlyBench:
-    def __init__(self, llm_config: LLMConfig | None = None, hf_models: list[str] | None = None, notif_enabled: bool = False) -> None:
+    def __init__(self, llm_config: LLMConfig | None = None, hf_models: list[str] | None = None, notif_enabled: bool = False, concurrency: int | None = None) -> None:
         self._registry = Registry()
-        # hf_models declares which local HuggingFace models this environment uses; it feeds the
-        # default env config only (an explicit llm_config already carries its own huggingface setup)
-        config = llm_config if llm_config is not None else LLMConfig.from_env(huggingface_models=hf_models)
+        # hf_models declares which local HuggingFace models this environment uses, and concurrency caps
+        # each provider's in-flight requests; both feed the default env config only (an explicit
+        # llm_config already carries its own huggingface and concurrency setup)
+        config = llm_config if llm_config is not None else LLMConfig.from_env(default_concurrency=concurrency, huggingface_models=hf_models)
         self._llm = LLM(config)
         # download/verify any provider-local resources (e.g. HuggingFace models) up front
         self._llm.bootstrap()
