@@ -1,3 +1,6 @@
+from collections.abc import Iterable
+
+
 def to_bool(value: str | bool) -> bool:
     if isinstance(value, bool):
         return value
@@ -38,6 +41,18 @@ def char_to_number_upper(char: str) -> int:
 
 def char_to_number_lower(char: str) -> int:
     return _char_to_num(char, "a")
+
+
+def compress_ranges(numbers: Iterable[int]) -> str:
+    # "1,2,3,5,9,10" -> "1-3,5,9-10", so a long list of round numbers stays a short token in a log line
+    ordered = sorted(set(numbers))
+    groups: list[list[int]] = []
+    for number in ordered:
+        if groups and number == groups[-1][1] + 1:
+            groups[-1][1] = number
+        else:
+            groups.append([number, number])
+    return ",".join(str(start) if start == end else f"{start}-{end}" for start, end in groups)
 
 
 def order_suffix(order: int) -> str:
