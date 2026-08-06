@@ -3,9 +3,12 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from plybench.callbacks.game_callbacks import GameCallbacks
 from plybench.configs.game_config import GameConfig
 from plybench.configs.player_config import PlayerConfig
 from plybench.harness.results import BenchmarkResults
+from plybench.player.player import Player, PlayerOutput
+from plybench.trackers.game_tracker import GameStep
 from plybench.trackers.result_tracker import ResultTracker
 
 # Orchestration-layer phase hooks, the counterpart to the game-loop `GameCallbacks`. A caller (or an
@@ -17,6 +20,8 @@ MatchupStartCallback = Callable[["ResultTracker", "GameConfig", "PlayerConfig", 
 MatchupEndCallback = Callable[["ResultTracker"], None]
 RoundStartCallback = Callable[["GameConfig", "PlayerConfig", "PlayerConfig", int], None]
 RoundCompleteCallback = Callable[["GameConfig", "PlayerConfig", "PlayerConfig", int], None]
+# fired for every move of every round; the game-loop `after_move` hook re-tagged with the matchup it belongs to
+MoveCompleteCallback = Callable[["GameConfig", "PlayerConfig", "PlayerConfig", int, "GameStep"], None]
 
 
 @dataclass
@@ -27,6 +32,7 @@ class BenchmarkCallbacks:
     matchup_end_callback: MatchupEndCallback | None = None
     round_start_callback: RoundStartCallback | None = None
     round_complete_callback: RoundCompleteCallback | None = None
+    move_complete_callback: MoveCompleteCallback | None = None
 
     def on_benchmark_start(self, game_configs: list[str], player_configs: list[str], opponent_configs: list[str]) -> None:
         if self.benchmark_start_callback is not None:
@@ -52,6 +58,18 @@ class BenchmarkCallbacks:
         if self.round_complete_callback is not None:
             self.round_complete_callback(game_config, i, o, game_round)
 
+    def on_move_complete(self, game_config: GameConfig, i: PlayerConfig, o: PlayerConfig, game_round: int, step: GameStep) -> None:
+        if self.move_complete_callback is not None:
+            self.move_complete_callback(game_config, i, o, game_round, step)
+
+    def for_round(self, game_config: GameConfig, i: PlayerConfig, o: PlayerConfig, game_round: int, bundle: GameCallbacks | None = None) -> GameCallbacks:
+        # bridge to the game loop, whose callbacks only know about players: re-tag its moves with the
+        # matchup/round they belong to, on top of whatever game callbacks the caller supplied
+        def on_after_move(player: Player, player_output: PlayerOutput, step: GameStep) -> None:
+            self.on_move_complete(game_config, i, o, game_round, step)
+
+        return GameCallbacks.combine(bundle, GameCallbacks(after_move_callback=on_after_move))
+
     @classmethod
     def combine(cls, *bundles: BenchmarkCallbacks | None) -> BenchmarkCallbacks:
         children = tuple(bundle for bundle in bundles if bundle is not None)
@@ -70,4 +88,5 @@ class BenchmarkCallbacks:
             matchup_end_callback=fan("on_matchup_end"),
             round_start_callback=fan("on_round_start"),
             round_complete_callback=fan("on_round_complete"),
+            move_complete_callback=fan("on_move_complete"),
         )

@@ -60,6 +60,7 @@ def test_both_callback_levels_fire(tmp_path, monkeypatch):
         matchup_end_callback=lambda *a: events.append("matchup_end"),
         round_start_callback=lambda *a: events.append("round_start"),
         round_complete_callback=lambda *a: events.append("round_complete"),
+        move_complete_callback=lambda *a: events.append("move_complete"),
     )
     moves: list[str] = []
     game_callbacks = GameCallbacks(
@@ -78,6 +79,8 @@ def test_both_callback_levels_fire(tmp_path, monkeypatch):
 
     assert moves.count("game_start") == 2 and moves.count("game_end") == 2
     assert moves.count("before") == moves.count("after") > 0
+    # move events reach the benchmark level too, without displacing the caller's own game callbacks
+    assert events.count("move_complete") == moves.count("after")
 
 
 def test_load_experiment_and_results_matrix(tmp_path, monkeypatch):

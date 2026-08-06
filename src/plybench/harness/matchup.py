@@ -42,7 +42,8 @@ async def _play_round(
     player_o = op.registry.build_player(engine.game, matchup.o, "o")
 
     player_pair = order_players_for_game(player_i, player_o, game_round, matchup.num_games)
-    game_tracker = await engine.play(player_pair, game_callbacks=game_callbacks, game_round=game_round)
+    round_callbacks = benchmark_callbacks.for_round(matchup.game, matchup.i, matchup.o, game_round, game_callbacks)
+    game_tracker = await engine.play(player_pair, game_callbacks=round_callbacks, game_round=game_round)
 
     result_tracker.record_game(game_round, game_tracker)
     benchmark_callbacks.on_round_complete(matchup.game, matchup.i, matchup.o, game_round)
