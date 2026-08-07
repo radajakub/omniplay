@@ -13,13 +13,40 @@ from plybench.app import PlyBench
 from plybench.common.paths import BenchmarkPathBuilder
 from plybench.harness.benchmark import Benchmark
 from plybench.harness.results import BenchmarkResults
+from plybench.llm import ModelLimits, Provider
+
+# Per-model quotas for *this* account, keyed by provider and model name (read them off the provider's
+# console -- for Mistral, Admin -> API -> Limits). They live here rather than in the package because
+# they are account-specific: the package ships no limits, and another tier's quotas would differ.
+# Providers and models absent from this map are governed only by the provider-wide semaphore.
+LIMITS: dict[Provider, dict[str, ModelLimits]] = {
+    # every provider is gated the same way, so any of them can be paced by adding a block here; each
+    # field is optional, e.g. tokens only:
+    # Provider.OPENAI: {
+    #     "gpt-5.4": ModelLimits(tpm=2_000_000),
+    # },
+}
 
 
-def build_op(notif_enabled: bool = False, concurrency: int | None = None) -> PlyBench:
+def apply_model_limits(op: PlyBench, scale: float = 1.0) -> None:
+    """Install the account's per-model quotas. `scale` leaves headroom when several runs share the
+    account, since each process paces only itself."""
+    available = set(op.llm.available_providers)
+    for provider, models in LIMITS.items():
+        if provider not in available:
+            continue
+        for model_name, limits in models.items():
+            op.llm.set_model_limits(provider, model_name, limits.scaled(scale) if scale != 1.0 else limits)
+
+
+def build_op(notif_enabled: bool = False, concurrency: int | None = None, limit_scale: float = 1.0) -> PlyBench:
     # PlyBench's env config self-disables providers whose keys are absent, so bot-only scripts work offline too
     # notif_enabled is passed to the PlyBench constructor, which in turn passes it to the NotificationClient constructor
     # concurrency caps in-flight requests per provider -- the only limit that maps to an API rate quota
-    return PlyBench(notif_enabled=notif_enabled, concurrency=concurrency)
+    op = PlyBench(notif_enabled=notif_enabled, concurrency=concurrency)
+    # models are registered without limits, so quotas are applied here rather than by the package
+    apply_model_limits(op, limit_scale)
+    return op
 
 
 def add_source_args(parser: argparse.ArgumentParser) -> None:
