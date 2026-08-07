@@ -104,7 +104,8 @@ class StoryNimEngine(TurnBasedEngine):
             pile_sum=self.nim_params.pile_sum,
             nim_start=self.nim_params.nim_start,
         )
-        game = StoryNimGame(is_misere=True, pile_sizes=transformer.instance.pile_sizes)
+        # the instance is held in inverse space; the underlying game needs the complemented piles, same as reset()
+        game = StoryNimGame(is_misere=True, pile_sizes=transformer.get_original_pile_sizes())
         adapter = StoryNimPromptAdapter(max_pile_size=self.nim_params.max_pile_size)
         super().__init__(game_config, game, transformer, adapter, NimAction, NimObservation)
 
