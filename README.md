@@ -42,6 +42,7 @@ pip install "plybench[openai]"         # OpenAI
 pip install "plybench[gemini]"         # Google Gemini
 pip install "plybench[grok]"           # Grok (OpenAI-compatible endpoint)
 pip install "plybench[anthropic]"      # Anthropic Claude
+pip install "plybench[mistral]"        # Mistral
 pip install "plybench[metacentrum]"    # Metacentrum (OpenAI-compatible endpoint)
 pip install "plybench[huggingface]"    # local HuggingFace models (torch + transformers)
 pip install "plybench[all]"            # everything
@@ -108,6 +109,8 @@ GROK_BASE_URL=...   # optional, defaults to https://api.x.ai/v1
 
 CLAUDE_API_KEY=...
 
+MISTRAL_API_KEY=...
+
 METACENTRUM_BASE_URL=...
 METACENTRUM_API_KEY=...
 
@@ -116,6 +119,45 @@ HF_TOKEN=...   # only for gated/private HuggingFace models
 NTFY_URL=...   # optional, enables progress notifications (see Notifications)
 NTFY_TOKEN=...
 ```
+
+### Rate limits
+
+Two independent layers protect against provider throttling:
+
+- **Provider concurrency** (`ProviderSemaphore`) caps in-flight requests per provider. This is the
+  only mechanism most providers need — set it with `PlyBench(concurrency=...)` or
+  `llm.set_concurrency(provider, n)`.
+- **Per-model quotas** (`ModelLimits`) additionally pace a single model by in-flight share, requests
+  per second and tokens per minute.
+
+Both layers apply to **every** provider — the gate is enforced in the shared dispatch path each client
+routes its API call through, so nothing is provider-specific.
+
+**No model ships with a quota**, because published allowances are account-specific — they depend on
+your tier and differ per model. Apply your own when you know them:
+
+```python
+from plybench.llm import ModelLimits, Provider
+
+op.llm.set_model_limits(Provider.MISTRAL, "mistral-small-4", ModelLimits(max_concurrent=8, rps=1.67, tpm=100_000))
+op.llm.set_model_limits(Provider.MISTRAL, "mistral-small-4", None)  # back to unlimited
+```
+
+Every field is optional, so you can pace on tokens alone and leave requests unbounded. Unset limits
+mean a model is governed only by the provider semaphore, which is why adding this changed nothing for
+existing providers. The repo-local scripts keep their quotas in `LIMITS` in `scripts/_shared.py`, keyed
+by provider and model name — a useful pattern to copy, since that file is not part of the installed
+package.
+
+Token pacing reserves an estimate before each call (prompt length plus `max_tokens`, or the model's
+default output guess) and reconciles it against reported usage once the response lands, so an
+inaccurate estimate costs a little throughput rather than correctness. Because quotas are account-wide
+while each process paces only itself, pass a `scale` below `1.0` when several runs share an account.
+`safe_call`'s backoff remains the backstop for any 429 that slips through.
+
+When per-model shares exceed the provider cap they queue behind it, so set the provider concurrency at
+or above their sum (`--concurrency 24` for the two models above) to keep one model from holding slots
+the other's quota could use.
 
 ### HuggingFace (local models)
 
