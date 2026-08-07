@@ -82,6 +82,7 @@ def build_replayer(registry: Registry, game_config: GameConfig) -> TurnBasedRepl
     """Build a replayer for a (solvable) game: a fresh engine plus an optimal judge whose minimax cache
     is solved/loaded on initialize_policy. Only meaningful for `registry.solvable(game_config.key)`."""
     engine = registry.build_engine(game_config)
+    engine.reset()  # the constructor's game need not be the played instance; the solver must see the reset one
     judge = registry.build_player(engine.game, registry.player_config("optimal:"), "i")
     judge.initialize_policy(engine.game, engine.prompt_adapter)
     return TurnBasedReplayer(engine, cast(Judgeable, judge))
