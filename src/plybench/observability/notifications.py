@@ -3,11 +3,15 @@ from __future__ import annotations
 
 import logging
 import os
+from collections.abc import Callable
+from typing import TypeVar
 
 import requests
 from dotenv import dotenv_values
 
 logger = logging.getLogger(__name__)
+
+T = TypeVar("T")
 
 
 class NotificationClient:
@@ -42,3 +46,10 @@ class NotificationClient:
             logger.warning("Failed to send notification: %s", error)
             return
         logger.info("Notification sent: %s", message)
+
+    def wrap(self, label: str, call: Callable[[], T]) -> T:
+        try:
+            return call()
+        except Exception as error:
+            self.notify(f"{label} failed: {type(error).__name__}: {error}")
+            raise
