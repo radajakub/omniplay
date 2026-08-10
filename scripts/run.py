@@ -32,7 +32,7 @@ def main() -> None:
     parser.add_argument("--sync", action="store_true", help="run matchups sequentially instead of concurrently (rounds within a matchup still run concurrently)")
     parser.add_argument("--concurrency", type=int, help=f"max in-flight requests per provider -- set this to your API rate quota (default: {DEFAULT_CONCURRENCY})")
     parser.add_argument("--rounds-concurrency", type=int, help="max concurrent rounds per matchup (default: --concurrency); the provider limit still caps actual requests")
-    parser.add_argument("--notify", action="store_true", help="push a notification on each matchup end + a final summary (needs NTFY_URL)")
+    parser.add_argument("--notify", action="store_true", help="push a notification on each matchup end, a final summary, and on failure (needs NTFY_URL)")
     args = parser.parse_args()
 
     concurrency = args.concurrency if args.concurrency is not None else DEFAULT_CONCURRENCY
@@ -47,7 +47,10 @@ def main() -> None:
             print("warning: --notify set but NTFY_URL is not configured; notifications will be skipped")
         callbacks = BenchmarkCallbacks.combine(callbacks, notification_benchmark_callbacks(op.notif, benchmark.experiment))
 
-    results = asyncio.run(benchmark.run(sync=args.sync, concurrency=rounds_concurrency, benchmark_callbacks=callbacks))
+    results = op.notif.wrap(
+        f"[{benchmark.experiment}] benchmark",
+        lambda: asyncio.run(benchmark.run(sync=args.sync, concurrency=rounds_concurrency, benchmark_callbacks=callbacks)),
+    )
 
     complete = sum(1 for tracker in results.trackers if tracker.is_complete())
     print(f"\ndone: {complete}/{len(results.trackers)} matchups complete under results/benchmarks/{benchmark.experiment}/")
