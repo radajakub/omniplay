@@ -26,7 +26,7 @@ def _parse_options(options_string: str) -> LLMCallOptions:
     )
 
 
-def _options_to_string(options: LLMCallOptions) -> str:
+def options_to_string(options: LLMCallOptions) -> str:
     parts: list[str] = []
     if options.thinking_enabled:
         parts.append("thinking_enabled=True")
@@ -61,11 +61,11 @@ class LLMParams(PlayerParams):
 
     def to_string(self) -> str:
         head = f"{self.observation_type.value}:{self.output_strategy.value}:{self.model.provider.value}:{self.model.model_name}"
-        return f"{head}:{_options_to_string(self.model.options)}"
+        return f"{head}:{options_to_string(self.model.options)}"
 
     @property
     def path_suffix(self) -> str:
-        options = _options_to_string(self.model.options).replace("=", "_").replace(",", "_")
+        options = options_to_string(self.model.options).replace("=", "_").replace(",", "_")
         head = f"{self.observation_type.value}_{self.output_strategy.value}_{self.model.provider.value}_{self.model.model_name}"
         return f"{head}_{options}" if options else head
 
