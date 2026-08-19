@@ -127,6 +127,11 @@ class GameTracker(Serializable):
         self.seq += 1
         return self.seq
 
+    def steps_of(self, player: PlayerConfig, attr: str | None = None) -> list[GameStep]:
+        # `attr` drops steps whose field is None, i.e. the player type has no such concept (a bot
+        # records no tokens), which is distinct from a genuine 0
+        return [step for step in self.steps if step.player_hash == player.hash and (attr is None or getattr(step, attr) is not None)]
+
     def add_move(
         self, player: PlayerConfig, observation: InterfaceObservation, player_output: PlayerOutput, serialized_state: str, trackers: PlayerTrackerResolver | None = None
     ) -> None:
