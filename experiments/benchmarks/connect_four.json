@@ -8,7 +8,8 @@
     { "value": "llm:actions:text:claude:claude-fable-5:thinking_enabled=True,reasoning_effort=high", "enabled": true },
     { "value": "llm:actions:text:mistral:mistral-medium-3.5:thinking_enabled=True,reasoning_effort=high", "enabled": true },
     { "value": "llm:actions:text:metacentrum:glm-5.2:thinking_enabled=True", "enabled": true },
-    { "value": "llm:actions:text:metacentrum:kimi-k3:thinking_enabled=True,reasoning_effort=max", "enabled": true }
+    { "value": "llm:actions:text:metacentrum:kimi-k3:thinking_enabled=True,reasoning_effort=max", "enabled": true },
+    { "value": "llm:actions:text:metacentrum:qwen-3.8-27b:thinking_enabled=True,reasoning_effort=xhigh", "enabled": true }
   ],
   "opponents": [
     { "value": "random:distribution=uniform", "enabled": true },
