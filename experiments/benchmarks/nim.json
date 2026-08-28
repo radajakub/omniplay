@@ -39,6 +39,7 @@
     { "value": "llm:state:text:mistral:mistral-medium-3.5:thinking_enabled=True,reasoning_effort=high", "enabled": true },
     { "value": "llm:state:text:mistral:mistral-small-4:thinking_enabled=True,reasoning_effort=high", "enabled": true },
 
+    { "value": "llm:actions:text:metacentrum:gemma-4:thinking_enabled=True,reasoning_effort=high", "enabled": true },
     { "value": "llm:state:text:metacentrum:gpt-oss-120b:thinking_enabled=True,reasoning_effort=high", "enabled": true },
     { "value": "llm:state:text:metacentrum:qwen-3.5-122b:thinking_enabled=True", "enabled": true },
     { "value": "llm:state:text:metacentrum:glm-5.2:thinking_enabled=True", "enabled": true },
